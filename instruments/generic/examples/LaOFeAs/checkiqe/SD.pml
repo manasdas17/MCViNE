@@ -16,37 +16,25 @@
 
 <inventory>
 
-  <component name="SSSD">
+  <component name="SD">
 
-    <property name="ncount">10000</property>
-    <property name="buffer_size">10000</property>
+    <property name="ncount">31800000</property>
+    <property name="buffer_size">100000</property>
 <!--
     <property name='overwrite-datafiles'>yes</property>
 -->
 
     <component name="geometer">
       <property name="source">(0,0,0), (0,0,0)</property>
-      <property name="sample">(0,0,10), (0,0,0)</property>
-      <property name="neutron_storage">(0,0,10), (0,0,0)</property>
-      <property name="detector">(0,0,10), (0,0,0)</property>
+      <property name="detector">(0,0,0), (0,0,0)</property>
     </component>
 
-    <component name="source">
-      <property name="velocity">0,0,3659.51</property>
-      <property name="probability">1</property>
+    <facility name="source">neutrons_from_storage</facility>
+    <component name="neutrons_from_storage">
+      <property name="path">neutrons_scattered_by_sample</property>
     </component>
 
-    <facility name="sample">LaOFeAs_sample</facility>
-    <component name="LaOFeAs_sample">
-      <property name="xml">sampleassembly.xml</property>
-    </component>
-
-    <component name="neutron_storage">
-      <property name="path">neutrons</property>
-      <property name="packetsize">10000</property>
-    </component>
-
-    <facility name="detector">iqe_monitor</facility>
+    <property name="detector">iqe_monitor</property>
     <component name="iqe_monitor">
       <property name='max_angle_out_of_plane'>90</property>
       <property name='min_angle_out_of_plane'>-90</property>
