@@ -6,7 +6,7 @@
   
   <PowderSample name="sample" type='sample'>
     <Shape>
-      <block width="6*cm" height="10*cm" thickness="0.1*cm" />
+      <block width="4*cm" height="3*cm" thickness="0.05*cm" />
     </Shape>
     <Phase type="crystal">
       <ChemicalFormula>LaOFeAs</ChemicalFormula>
@@ -15,7 +15,7 @@
   </PowderSample>
   
   <LocalGeometer registry-coordinate-system="InstrumentScientist">
-    <Register name="sample" position="(0,0,0)" orientation="(0,0,0)"/>
+    <Register name="sample" position="(0,0,0)" orientation="(0,0,45)"/>
   </LocalGeometer>
 <!--
   <environment>
