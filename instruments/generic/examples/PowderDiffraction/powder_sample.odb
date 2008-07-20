@@ -1,0 +1,5 @@
+
+def sample():
+    from mcstas2.pyre_support import componentfactory
+    f = componentfactory( 'samples', 'PowderN' )
+    return f('powder_sample')
