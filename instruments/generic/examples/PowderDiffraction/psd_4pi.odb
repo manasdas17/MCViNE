@@ -3,6 +3,4 @@ def detector():
     from mcstas2.pyre_support import componentfactory
     f = componentfactory( 'monitors', 'PSD_monitor_4PI' )
     ret = f('psd_4pi')
-    from mcstas2.pyre_support.monitor_exts import extend
-    extend( ret )
     return ret
