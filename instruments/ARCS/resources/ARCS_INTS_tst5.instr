@@ -1,0 +1,142 @@
+/*************************************
+* ARCS simulation
+* INTENSITY test
+* INPUTS:
+*        Edes:desired energy (meV)
+*        cwidmum: distance between chopper slits (microm)
+*        cnu:  frequency of chopper (Hz)
+* 
+* GEG Oct 29,2002
+* added guide section between chopper and sample
+*************************************/
+
+
+
+DEFINE INSTRUMENT tof_2(Edes,cwidmum,cnu)
+DECLARE
+%{ 
+   double Edes;
+   double samp_pos;
+   double Fu_l;
+   double Gu_m, Gu_R, Gu_alpha, Gu_Qc, Gu_W;
+   double phaseoff, phasefc1, phase_sam, phase_det,toffset;
+   double tmin, tmax;
+   double crad,deltat,ccurv,cwid;
+   double L1,L2,L3;
+   double sh_end_w,sh_end_h;
+   double ch_x, ch_y,ch_w,ch_h; 
+   double e_wid, e_min, e_max, e_step;
+   int e_bin,nslits;
+   char *detoptstr;
+   char *tfilename;
+   char *detdivoptstr;
+   char *detydivoptstr;  
+%}
+INITIALIZE
+%{
+   detoptstr=malloc(150*sizeof(char));
+   tfilename=malloc(50*sizeof(char));
+   detdivoptstr=malloc(200*sizeof(char));
+   detydivoptstr=malloc(200*sizeof(char));
+   L1=11.5;L2=2.0;L3=3.0;
+   ch_w=0.05;ch_h=0.05;crad=0.05;
+   ccurv=-sqrt(Edes)*SE2V/(4*PI*cnu);
+   ch_x=log10(Edes);  ch_y=-0.45*ch_x*(1+tanh((ch_x+1.2)/0.38))/2-0.13*ch_x*(1-tanh((ch_x+1.2)/0.38))/2-0.35*tanh((ch_x+1.2)/0.38)+0.51;
+    // toffset=0.0;
+   toffset=pow(10,ch_y)/1.0e6;
+   sh_end_w=0.10-0.5*(0.1-ch_w)/(L1-2.5)*2.0;
+   sh_end_h=0.12-0.5*(0.12-ch_h)/(L1-2.5)*2.0; 
+   phasefc1=(L1)/(sqrt(Edes)*SE2V)+toffset;
+   phase_sam=(L1+L2)/(sqrt(Edes)*SE2V)+toffset;
+   phase_det=(L1+L2+L3)/(sqrt(Edes)*SE2V)+toffset;
+   tmin=phase_det-70e-6;
+   tmax=phase_det+25e-6;
+   Gu_R=0.98;Gu_alpha=5.5;Gu_m=3.0;Gu_Qc=0.02;Gu_W=2e-3;
+   Fu_l=5;
+   samp_pos=L1+L2;
+   deltat=crad/(sqrt(Edes)*SE2V);
+   e_wid=0.2*Edes;
+   e_min=Edes-e_wid;
+   //e_bin=ceil(2*e_wid/e_step);
+   e_max=Edes+e_wid;
+   printf("%s%f %s%f\n","emin: ",e_min,"emax: ",e_max);
+   sprintf(detoptstr,"%s%e %e%s%1.0f%s%1.0f%s%1.0f%s", "square x bins 100 limits[-.10 .10] y bins 100 limits[",-.10,.10,"] file=det_5_ARCS_E_",Edes,"Cwid_",cwidmum,"Cnu_",cnu,".x_t");
+   sprintf(detdivoptstr,"%s%1.0f%s%1.0f%s%1.0f%s","square x bins 100 limits[-.10 .10] xdiv bins 100 limits[-1.0 1.0] file=ARCS_E_",Edes,"cw_",cwidmum,"nu_",cnu,".x_d");
+   sprintf(detydivoptstr,"%s%1.0f%s%1.0f%s%1.0f%s","square y bins 100 limits[-.10 .10] ydiv bins 100 limits[-1.0 1.0] file=ARCS_E_",Edes,"cw_",cwidmum,"nu_",cnu,".y_d");
+   printf("%s\n",detdivoptstr);
+   printf("%s\n",detydivoptstr);
+   sprintf(tfilename,"%s%1.0f%s","tdet_E_",Edes,".dat");
+   cwid=cwidmum*1e-6;
+   nslits=floor(5e-2/cwid);
+%}   
+TRACE
+
+COMPONENT mod=SNS_source(S_filename="source_hl213c_bu_17_02.dat",
+                         width=0.1,
+                         height=0.12,
+                         dist=2.5,
+                         xw=0.1,
+                         yh=0.12,
+                         Emin=e_min,
+                         Emax=e_max)
+AT(0,0,0) ABSOLUTE
+
+
+COMPONENT shutter_guide=Channeled_guide(w1=0.10,h1=.12,w2=sh_end_w,h2=sh_end_h,
+                          l=2.0,
+                          R0=Gu_R,mx=Gu_m,my=Gu_m,Qcx=Gu_Qc,Qcy=Gu_Qc,
+                          W=Gu_W,k=1,d=0.0,alphax=Gu_alpha,alphay=Gu_alpha)
+AT(0,0,2.5) RELATIVE mod
+COMPONENT funnel1=Channeled_guide(w1=sh_end_w,h1=sh_end_h,w2=ch_w,h2=ch_h,
+                        l=L1-4.5-crad,
+                        R0=Gu_R,mx=Gu_m,my=Gu_m,Qcx=Gu_Qc,Qcy=Gu_Qc,
+                        W=Gu_W,k=1,d=0.0,alphax=Gu_alpha,alphay=Gu_alpha)
+at(0,0,2.0) RELATIVE shutter_guide
+
+COMPONENT fermi_chopp=Fermi_Chopper(ymin=-0.03,ymax=0.03,
+                               rad=crad,
+                               nu=cnu,delta=phasefc1,
+                               w=cwid,n=nslits,r_slit=ccurv
+                           )
+/*COMPONENT fermi_chopp=Arm()*/
+AT (0,0,L1) RELATIVE mod
+
+COMPONENT chop_samp_guide=Channeled_guide(w1=ch_w,h1=ch_h,w2=0.04,h2=0.04,
+                              l=1.5-crad,
+                              R0=Gu_R,mx=Gu_m,my=Gu_m,Qcx=Gu_Qc,Qcy=Gu_Qc,
+			      W=Gu_W,k=1,d=0.0,alphax=Gu_alpha,alphay=Gu_alpha)
+at(0,0,crad) RELATIVE fermi_chopp
+                                            
+COMPONENT det_2 = E_monitor(xmin = -.5,xmax = .5,ymin = -.5,ymax = .5, 
+		      Emin=Edes-5,Emax=Edes+5,
+		      nchan=200,filename = "eout.dat")
+AT (0,0,L2-.06) RELATIVE fermi_chopp
+
+COMPONENT det_3 =TOF_monitor2(xmin = -.5,xmax = .5,ymin = -.5,ymax = .5,
+                      tmin =phase_sam-.00005,tmax =phase_sam+.00005,
+                      nchan=50,filename = "tout.dat")
+AT(0,0,L2-.01) RELATIVE fermi_chopp
+
+COMPONENT det_5=Monitor_nD(xmin=-0.1,xmax=0.1,ymin=-0.1,ymax=0.1,
+                 options=detoptstr)
+AT(0,0,L2) RELATIVE fermi_chopp
+
+COMPONENT det_sam_div=Monitor_nD(xmin=-0.1,xmax=0.1,ymin=-0.1,ymax=0.1,
+                 options=detdivoptstr)
+  AT (0,0,L2+.001) RELATIVE fermi_chopp
+
+COMPONENT det_y_sam_div=Monitor_nD(xmin=-0.1,xmax=0.1,ymin=-0.1,ymax=0.1,
+                 options=detydivoptstr)
+  AT (0,0,L2+.002) RELATIVE fermi_chopp
+
+COMPONENT det_t_det=TOF_monitor2( xmin = -.5,xmax = .5,ymin = -.5,ymax = .5,
+                      tmin =phase_det-.00005,tmax =phase_det+.00005,
+                      nchan=50,filename=tfilename)
+AT(0,0,L2+L3) RELATIVE fermi_chopp
+
+FINALLY
+%{                       	      
+   free(detdivoptstr);free(detydivoptstr);free(detoptstr);free(tfilename);	
+%}	                
+END
+
