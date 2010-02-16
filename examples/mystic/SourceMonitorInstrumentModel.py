@@ -37,6 +37,9 @@ def simulate(
 
         def _defaults(self):
             base._defaults(self)
+
+            self.inventory.overwrite_datafiles = True
+            
             self.inventory.sequence = ['source', 'monitor']
             geometer = self.inventory.geometer
             geometer.inventory.monitor = (0,0,1), (0,0,0)
@@ -82,17 +85,68 @@ def simulate(
     return histogram.I
 
 
-def test():
+from mystic.models.abstract_model import AbstractModel
+
+class Model(AbstractModel):
+
+    
+    def __init__(self, name = 'mcvine:source-monitor'):
+        super(Model, self).__init__(name)
+        return
+
+
+    def evaluate(self, coeffs, x):
+        # at this moment, x must be an array and must be
+        # evenly spaced
+        x = self._assertIsEventlySpacedEnergyBins(x)
+
+        source_E0, source_dE = coeffs
+        
+        monitor_Emin=x[0]
+        monitor_Emax=x[-1]
+        monitor_N=len(x) 
+
+        return simulate(
+            source_E0, source_dE, 
+            monitor_Emin, monitor_Emax, monitor_N)
+
+
+    def _assertIsEventlySpacedEnergyBins(self, x):
+        import numpy as np
+        x = np.array(x)
+        x.shape = -1,
+        size = x.shape[0]
+        assert size > 2
+        Emin = x[0]
+        dE = x[1]-x[0]
+        assert dE > 0
+        
+        # evenly spaced
+        assert (np.abs( (x[2:] - x[1:-1])-dE )/dE < 1.e-6).all()
+        
+        return x
+
+
+def test1():
     print simulate()
     return
 
 
+def test2():
+    model = Model()
+    import numpy
+    print model.evaluate((70, 5), numpy.arange(60, 80, 1.))
+    return
+
+
 def main():
-    test()
+    test1()
+    test2()
     return    
     
-if __name__ == "__main__":
-    main()
+
+if __name__ == "__main__": main()
+
     
 # version
 __id__ = "$Id$"
