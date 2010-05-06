@@ -135,7 +135,7 @@ def test1():
 def test2():
     model = Model()
     import numpy
-    print model.evaluate((70, 5), numpy.arange(60, 80, 1.))
+    print model.evaluate((75, 5), numpy.arange(50,100, 1.))
     return
 
 

@@ -50,7 +50,7 @@ def costFactory(i):
     Fxp = model(params_prime)
 
     # compute diameter
-    return -scale * (Fx - Fxp)**2
+    return -scale * ((Fx - Fxp)**2).sum()
 
   return cost
 
