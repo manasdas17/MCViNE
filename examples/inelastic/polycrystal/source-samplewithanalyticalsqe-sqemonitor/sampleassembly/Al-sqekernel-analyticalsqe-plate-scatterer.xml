@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE scatterer>
+
+<!-- weights: absorption, scattering, transmission -->
+<homogeneous_scatterer mcweights="0, 1, 0">
+  
+  <SQEkernel Q-range='0*angstrom**-1,12.*angstrom**-1' energy-range='-48*meV,48*meV'>
+    <SQE_fromexpression expression="2.*exp(-5. * (E-20-10*sin(Q/2.*3.14))^2)"/>
+    <!--
+    <SQE_fromexpression expression="exp(Q)"/>
+    -->
+  </SQEkernel>
+  
+</homogeneous_scatterer>
