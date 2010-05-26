@@ -1,0 +1,8 @@
+Al-constantenergytransferkernel.xml:
+   The sample assembly definition
+
+Al-constantenergytransfer-kernel-plate-scatterer.xml
+   The scatterer definition
+
+Al.xyz
+   The material definition of Al
