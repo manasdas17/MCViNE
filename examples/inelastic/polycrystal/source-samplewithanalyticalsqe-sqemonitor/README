@@ -1,0 +1,18 @@
+This example simulates a inelastic scattering from a sample with a
+S(Q,E) kernel. The S(Q,E) is supplied as an analytical function
+in sampleassembly/Al-sqekernel-analyticalsqe-plate-scatterer.xml.
+
+The sampleassembly is defined in directory "sampleassembly".
+Please read sampleassembly/README for details of the files in there.
+
+To run the simulation, execute
+
+ $ ./sim
+
+It will take a while to finish. When finish, you can see the result
+of I(Q,E) from the IQE_monitor by
+
+ $ PlotHist.py out/iqe_monitor.h5
+
+The analytical function supplied has a sin like dispersion.
+You should see it in the I(Q,E) plotted.

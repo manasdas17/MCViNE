@@ -1,0 +1,20 @@
+This example simulates a inelastic scattering from a sample with a
+constant-energy-transfer kernel.
+The constant-energy-transfer kernel scatters neutrons isotropically with
+constant energy transfer (specified in 
+sampleassembly/Al-constantenergytransfer-kernel-plate-scatterer.xml)
+
+The sampleassembly is defined in directory "sampleassembly".
+Please read sampleassembly/README for details of the files in there.
+
+To run the simulation, execute
+
+ $ ./sim
+
+It will take a while to finish. When finish, you can see the result
+of I(Q,E) from the IQE_monitor by
+
+ $ PlotHist.py out/iqe_monitor.h5
+
+In the I(Q,E) plot you should only see one horizontal line
+due to constant energy transfer.

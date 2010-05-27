@@ -21,11 +21,11 @@
         <property name="sequence">['source', 'sample', 'monitor']</property>
         <property name="overwrite-datafiles">True</property>
         <property name="output-dir">out</property>
-        <property name="ncount">1000.0</property>
+        <property name="ncount">1e6</property>
         <property name="multiple-scattering">False</property>
         <facility name="source">sources/Source_simple</facility>
         <facility name="geometer">geometer</facility>
-        <property name="buffer_size">100</property>
+        <property name="buffer_size">100000</property>
 
         <component name="sample">
             <property name="xml">sampleassembly/Al-sqekernel-analyticalsqe.xml</property>

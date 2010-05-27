@@ -15,3 +15,18 @@ of I(Q,E) from the IQE_monitor by
 
  $ PlotHist.py out/iqe_monitor.h5
 
+
+
+The S(Q,E) data for simulation is supplied in histogram hdf5 data
+format in sampleassembly/isotropicsqe.h5.
+
+If you have your own S(Q,E) in hdf5 format, you can change 
+sampleassembly/Ni-plate-sqekernel-isotropicsqe-scatterer.xml
+to use your S(Q,E) file, and run simulation again.
+
+The size of the sample is set to very small, and the source
+is real monochromatic, so the I(Q,E)
+obtained is actually almost identical to the input
+S(Q,E) histogram. To see more effects of instrument resolution,
+you can try changing the source and the sample dimension, for
+example.
