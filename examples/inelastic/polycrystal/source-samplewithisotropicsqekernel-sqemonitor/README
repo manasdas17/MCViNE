@@ -1,0 +1,17 @@
+This example simulates a inelastic scattering from a sample with a isotropic
+S(Q,E) kernel:
+
+ S(Q,E) = 1  for all Q, E
+
+The sampleassembly is defined in directory "sampleassembly".
+Please read sampleassembly/README for details of the files in there.
+
+To run the simulation, execute
+
+ $ ./sim
+
+It will take a while to finish. When finish, you can see the result
+of I(Q,E) from the IQE_monitor by
+
+ $ PlotHist.py out/iqe_monitor.h5
+

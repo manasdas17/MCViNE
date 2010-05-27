@@ -1,0 +1,14 @@
+Ni-sqekernel-isotropicsqe-sampleassembly.xml
+   The sample assembly definition
+
+Ni-plate-sqekernel-isotropicsqe-scatterer.xml
+   The scatterer definition
+
+Al.xyz
+   The material definition of Al
+
+create-isotropic-sqe-histogram.py
+   Script to create a sqe histogram hdf5 file. the sqe is isotropic
+
+isotropicsqe.h5
+   histogram of S(Q,E) that is isotropic
