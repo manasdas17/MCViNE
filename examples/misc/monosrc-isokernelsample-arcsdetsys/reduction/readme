@@ -1,0 +1,6 @@
+reduce events.dat to ipix.pkl
+  $ mcvine-reduce-eventdata-to-ipix --npixel=117760
+
+create arcs detector view from ipix.pkl
+  $ rm -f view.h5 ; ./createdetview.py
+

@@ -1,0 +1,1 @@
+rm -rf out && ./ssd --mpirun.nodes=10 --ncount=1e8
