@@ -1,0 +1,901 @@
+/*******************************************************************************
+*         McStas instrument definition URL=http://mcstas.risoe.dk
+*
+* Instrument: SNS_VULCAN
+*
+* %Identification
+* Written by: gallmeierfz@ornl.gov
+* Date: july 6, 2010
+* Origin: SNS-ORNL
+* Release: McStas 1.12
+* Version: 0.1
+* %INSTRUMENT_SITE: VULLCAN Spallation Neutron Source
+*
+* Instrument short description
+*
+* %Description
+* Simulating the VULCAN Instrument guide losses
+*
+* Example: mcrun SNS_VULCAN.instr
+*
+* %Parameters
+* none
+*
+* %Link 
+* A reference/HTML link for more information
+*
+* %End
+*******************************************************************************/
+
+DEFINE INSTRUMENT SNS_VULCAN (double frequency=60.0, double lambda=1.5, 
+                              string mode="hint", string out_format="table")
+
+/* The DECLARE section allows us to declare variables or  small      */
+/* functions in C syntax. These may be used in the whole instrument. */
+DECLARE
+%{
+  double dc_tphase, dc_omega;
+  double tg_w11, tg_w12, tg_w13, tg_w14, tg_w15, tg_w16, tg_w17, tg_w18, tg_w19;
+  double tg_w21, tg_w22, tg_w23, tg_w24, tg_w25, tg_w26, tg_w27, tg_w28, tg_w29;
+  double tg_h11, tg_h12, tg_h13, tg_h14, tg_h15, tg_h16, tg_h17, tg_h18, tg_h19;
+  double tg_h21, tg_h22, tg_h23, tg_h24, tg_h25, tg_h26, tg_h27, tg_h28, tg_h29;
+  double tg_alpha1, tg_alpha2, tg_alpha3, tg_alpha4, tg_alpha5, tg_alpha6, tg_alpha7; 
+  double tg_alpha8, tg_alpha9;
+  double tg_m_top1, tg_m_top2, tg_m_top3, tg_m_top4, tg_m_top5, tg_m_top6, tg_m_top7;
+  double tg_m_top8, tg_m_top9;
+  double tg_m_sid1, tg_m_sid2, tg_m_sid3, tg_m_sid4, tg_m_sid5, tg_m_sid6, tg_m_sid7;
+  double tg_m_sid8, tg_m_sid9;
+  int flag;
+%}
+
+/* The INITIALIZE section is executed when the simulation starts     */
+/* (C code). You may use them as component parameter values.         */
+INITIALIZE
+%{
+  dc_tphase = 6.529/3960*lambda;
+  dc_omega  = 2*PI*frequency;
+  if(strcmp(mode,"hint")==0) {
+     tg_w11= 0.016473;  tg_h11= 0.068046;  tg_alpha1= 2.800;
+     tg_w12= 0.016476;  tg_h12= 0.065935;  tg_alpha2= 3.479;
+     tg_w13= 0.016475;  tg_h13= 0.063581;  tg_alpha3= 2.800;
+     tg_w14= 0.016476;  tg_h14= 0.060960;  tg_alpha4= 2.800;
+     tg_w15= 0.016374;  tg_h15= 0.058013;  tg_alpha5= 4.191;
+     tg_w16= 0.016207;  tg_h16= 0.054874;  tg_alpha6= 4.191;
+     tg_w17= 0.015969;  tg_h17= 0.051553;  tg_alpha7= 3.479;
+     tg_w18= 0.015659;  tg_h18= 0.048142;  tg_alpha8= 4.191;
+     tg_w19= 0.015292;  tg_h19= 0.044808;  tg_alpha9= 3.479;
+
+     tg_w21= 0.016473;  tg_h21= 0.065939;  tg_m_top1= 3.72;  tg_m_sid1= 3.12;
+     tg_w22= 0.016477;  tg_h22= 0.063596;  tg_m_top2= 3.72;  tg_m_sid2= 3.10;
+     tg_w23= 0.016475;  tg_h23= 0.060965;  tg_m_top3= 3.72;  tg_m_sid3= 3.12;    
+     tg_w24= 0.016379;  tg_h24= 0.058027;  tg_m_top4= 3.72;  tg_m_sid4= 3.12; 
+     tg_w25= 0.016210;  tg_h25= 0.054878;  tg_m_top5= 3.62;  tg_m_sid5= 3.07;
+     tg_w26= 0.015967;  tg_h26= 0.051556;  tg_m_top6= 3.62;  tg_m_sid6= 3.07; 
+     tg_w27= 0.015650;  tg_h27= 0.048150;  tg_m_top7= 3.62;  tg_m_sid7= 3.10; 
+     tg_w28= 0.015298;  tg_h28= 0.044809;  tg_m_top8= 3.62;  tg_m_sid8= 3.07; 
+     tg_w29= 0.014924;  tg_h29= 0.041770;  tg_m_top9= 3.62;  tg_m_sid9= 3.10; 
+  }
+  else if(strcmp(mode,"hres")==0) {
+     tg_w11= 0.009599;  tg_h11= 0.068051;  tg_alpha1= 3.525;
+     tg_w12= 0.009604;  tg_h12= 0.065934;  tg_alpha2= 3.525;
+     tg_w13= 0.009602;  tg_h13= 0.063580;  tg_alpha3= 3.525;
+     tg_w14= 0.009601;  tg_h14= 0.060955;  tg_alpha4= 3.525;
+     tg_w15= 0.009603;  tg_h15= 0.058015;  tg_alpha5= 3.311;
+     tg_w16= 0.009605;  tg_h16= 0.054878;  tg_alpha6= 3.311;
+     tg_w17= 0.009607;  tg_h17= 0.051544;  tg_alpha7= 3.311;
+     tg_w18= 0.009607;  tg_h18= 0.048136;  tg_alpha8= 3.311;
+     tg_w19= 0.009603;  tg_h19= 0.044793;  tg_alpha9= 3.311; 
+
+     tg_w21= 0.009595;  tg_h21= 0.065944;  tg_m_top1= 3.72;  tg_m_sid1= 0.0;
+     tg_w22= 0.009603;  tg_h22= 0.063585;  tg_m_top2= 3.72;  tg_m_sid2= 0.0; 
+     tg_w23= 0.009601;  tg_h23= 0.060956;  tg_m_top3= 3.72;  tg_m_sid3= 0.0; 
+     tg_w24= 0.009602;  tg_h24= 0.058024;  tg_m_top4= 3.72;  tg_m_sid4= 0.0; 
+     tg_w25= 0.009597;  tg_h25= 0.054874;  tg_m_top5= 3.62;  tg_m_sid5= 0.0; 
+     tg_w26= 0.009605;  tg_h26= 0.051568;  tg_m_top6= 3.62;  tg_m_sid6= 0.0;
+     tg_w27= 0.009606;  tg_h27= 0.048147;  tg_m_top7= 3.62;  tg_m_sid7= 0.0; 
+     tg_w28= 0.009605;  tg_h28= 0.044813;  tg_m_top8= 3.62;  tg_m_sid8= 0.0; 
+     tg_w29= 0.009606;  tg_h29= 0.041756;  tg_m_top9= 3.62;  tg_m_sid9= 0.0; 
+  }    
+ else {
+     printf("mode keyword must be  hres or hint \n"); 
+     abort();
+  }
+  printf("tapered guide settigs:\n");
+  printf("  tg_w11= %8.4f tg_w21= %8.4f\n",tg_w11, tg_w21);
+  printf("  tg_h11= %8.4f tg_h21= %8.4f\n",tg_h11, tg_h21);
+  printf("  tg_alpha1= %8.4f tg_m_top1= %8.4f tg_m_sid1= %8.4f\n",tg_alpha1, tg_m_top1, tg_m_sid1);
+%}
+
+/* Here comes the TRACE section, where the actual      */
+/* instrument is defined as a sequence of components.  */
+TRACE
+
+COMPONENT progress_bar = Progress_bar(
+    )
+  AT (0, 0, 0) RELATIVE ABSOLUTE
+
+COMPONENT arm = Arm()
+  AT (0,0,0) ABSOLUTE
+
+COMPONENT source = SNS_source4(
+    S_filename = "a1Gw2-8-f5_fit_fit.dat", 
+    width = 0.10, height = 0.12, 
+    dist = 4.3, xw = 0.016, yh = 0.085, 
+    Emin = 0.01,  Emax = 1000, 
+    tinmin=0.0, tinmax=2000.0, 
+    sample_E=2, sample_t=1, proton_T=0.600)
+  AT (0, 0, 0.000)  RELATIVE arm
+
+COMPONENT core_vessel_insert = Collimator_linear(
+    xmin = -0.05, xmax = 0.05, ymin = -0.06, ymax = 0.06,
+    len = 1.359, divergence = 0, transmission = 1)
+  AT (0 , 0, 1.020) RELATIVE arm
+
+/* The only window in the simulation is dimensioned to the total Al-thickness in beam */
+/* not used: this component is built from ENDF/B cross section data 
+   and does not account for scattering proterties of crystaline materials    
+COMPONENT Al_window = Al_window(
+    win_thick = 0.01)
+  AT (0, 0, 2.400) RELATIVE arm
+*/
+
+COMPONENT start_shutter_insert = Slit(
+    xmin = -0.025, xmax = 0.025, ymin = -0.045, ymax = 0.045,
+    radius = 0)
+  AT (0, 0, 2.401)  RELATIVE arm
+
+COMPONENT end_shutter_insert = Slit(
+    xmin = -0.008, xmax = 0.008, ymin = -0.045, ymax = 0.045,
+    radius = 0)
+  AT (0, 0, 4.268)  RELATIVE arm
+
+COMPONENT L_monitor1 = L_monitor(
+    nchan = 140, filename = "Vulcan_asbuilt_L_monitor1.txt",
+    xwidth = 0.1, yheight = 0.1, Lmin = 0.0, Lmax = 14.0)
+  AT (0, 0, 4.3000) RELATIVE arm
+
+COMPONENT bulk_shield_insert1 = Guide(
+    w1 = .014999, h1 = 0.084702, w2 = 0.016096, h2 = 0.084688, l = 0.4965,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.547, m = 3.06, W = 0.003)
+  AT (0, 0, 4.3033) RELATIVE arm
+
+COMPONENT bulk_shield_insert2 = Guide(
+    w1 = .016090, h1 = 0.084706, w2 = 0.016590, h2 = 0.084696, l = 0.4965,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.277, m = 3.09, W = 0.003)
+  AT (0, 0, 0.4975)  RELATIVE PREVIOUS
+
+COMPONENT BS_Out = Arm()
+  AT (0, 0, 0.4975) RELATIVE PREVIOUS
+
+COMPONENT L_monitor2 = L_monitor(
+    nchan = 140, filename = "Vulcan_asbuilt_L_monitor2.txt",
+    xwidth = 0.1, yheight = 0.1, Lmin = 0.0, Lmax = 14.0)
+  AT (0, 0, 0.0001) RELATIVE PREVIOUS
+
+COMPONENT transition_guide1 = Guide(
+    w1 = .016594, h1 = 0.084702, w2 = 0.016817, h2 = 0.084695, l = 0.400,
+    R0 = 0.99, Qc = 0.0219, alpha = 4.841, m = 3.075, W = 0.003)
+  AT (0, 0, 0.00614) RELATIVE  BS_Out
+
+COMPONENT transition_guide2  = Guide(
+    w1 = .016811, h1 = 0.084700, w2 = 0.016960, h2 = 0.084689, l = 0.400,
+    R0 = 0.99, Qc = 0.0219, alpha = 4.190, m = 3.125, W = 0.003)
+  AT (0, 0, 0.4001) RELATIVE PREVIOUS
+
+COMPONENT transition_guide3  = Guide(
+    w1 = .016979, h1 = 0.084709, w2 = 0.017107, h2 = 0.084700, l = 0.4079,
+    R0 = 0.99, Qc = 0.0219, alpha = 4.091, m = 3.065, W = 0.003)
+  AT (0, 0, 0.4001) RELATIVE PREVIOUS
+
+COMPONENT TRG_Out = Arm()
+  AT (0, 0, 0.4080) RELATIVE PREVIOUS
+
+COMPONENT L_monitor3 = L_monitor(
+    nchan = 140, filename = "Vulcan_asbuilt_L_monitor3.txt",
+    xwidth = 0.1, yheight = 0.1, Lmin = 0.0, Lmax = 14.0)
+  AT (0, 0, 0.0001) RELATIVE PREVIOUS
+
+
+COMPONENT bandwidth_chopper = DiskChopper(
+    theta_0 = 49.23, R = 0.25, omega = dc_omega, n = 1, t_0 = dc_tphase)
+  AT (0, 0, 0.090) RELATIVE TRG_Out
+
+/* *************************************************************** */
+/* curved guide segment 1                                           */
+
+COMPONENT curved_guide1 = Guide(
+    w1 = 0.017002, h1 = 0.084490, w2 = 0.01700, h2 = 0.084496, l = 0.4953,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.761, m = 3.15, W = 0.003)
+  AT (0, 0, 0.09353) RELATIVE TRG_Out
+  ROTATED (0, 0.01015, 0) RELATIVE TRG_Out
+
+COMPONENT curved_guide2 = Guide(
+    w1 = 0.017002, h1 = 0.084487, w2 = 0.017004, h2 = 0.084488, l = 0.4953,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.130, m = 3.115, W = 0.003)
+  AT (0, 0, 0.4954)     RELATIVE curved_guide1
+  ROTATED (0, 0.01015, 0) RELATIVE curved_guide1
+
+COMPONENT curved_guide3 = Guide(
+    w1 = 0.017003, h1 = 0.084486, w2 = 0.017000, h2 = 0.084484, l = 0.4953,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.254, m = 3.105, W = 0.003)
+  AT (0, 0, 0.4954)     RELATIVE curved_guide2
+  ROTATED (0, 0.01015, 0) RELATIVE curved_guide2
+
+COMPONENT curved_guide4 = Guide(
+    w1 = 0.017004, h1 = 0.084485, w2 = 0.017001, h2 = 0.084483, l = 0.4953,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.688, m = 3.105, W = 0.003)
+  AT (0, 0, 0.4954)     RELATIVE curved_guide3
+  ROTATED (0, 0.01015, 0) RELATIVE curved_guide3
+
+COMPONENT curved_guide5 = Guide(
+    w1 = 0.017004, h1 = 0.084489, w2 = 0.017004, h2 = 0.084488, l = 0.4953,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.640, m = 3.07, W = 0.003)
+  AT (0, 0, 0.4954)     RELATIVE curved_guide4
+  ROTATED (0, 0.01015, 0) RELATIVE curved_guide4
+
+COMPONENT curved_guide6 = Guide(
+    w1 = 0.017004, h1 = 0.084483, w2 = 0.017007, h2 = 0.084489, l = 0.4953,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.874, m = 3.145, W = 0.003)
+  AT (0, 0, 0.4954)     RELATIVE curved_guide5
+  ROTATED (0, 0.01015, 0) RELATIVE curved_guide5
+
+COMPONENT CG1_Out = Arm()
+  AT (0, 0, 0.4954) RELATIVE PREVIOUS
+
+COMPONENT L_monitor4 = L_monitor(
+    nchan = 140, filename = "Vulcan_asbuilt_L_monitor4.txt",
+    xwidth = 0.1, yheight = 0.1, Lmin = 0.0, Lmax = 14.0)
+  AT (0, 0, 0.0001) RELATIVE PREVIOUS
+
+COMPONENT curved_guide7 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.795, m = 3.174, W = 0.003)
+  AT (0, 0, 0.09512)     RELATIVE CG1_Out
+  ROTATED (0, 0.00970, 0) RELATIVE CG1_Out
+
+COMPONENT curved_guide8 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.795, m = 3.174, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide9 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.795, m = 3.174, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide10 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.795, m = 3.174, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide11 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.829, m = 3.147, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide12 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.829, m = 3.147, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide13 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.829, m = 3.147, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide14 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.829, m = 3.147, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide15 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.494, m = 3.130, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide16 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.494, m = 3.130, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide17 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.494, m = 3.130, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide18 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.494, m = 3.130, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide19 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.245, m = 3.153, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide20 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.245, m = 3.153, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide21 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.245, m = 3.153, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide22 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.245, m = 3.153, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide23 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.166, m = 3.207, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide24 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.166, m = 3.207, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide25 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.166, m = 3.207, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide26 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.166, m = 3.207, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide27 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.041, m = 3.207, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide28 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.041, m = 3.207, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide29 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.041, m = 3.207, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide30 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.041, m = 3.207, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide31 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.132, m = 3.143, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide32 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.132, m = 3.143, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide33 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.132, m = 3.143, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide34 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.132, m = 3.143, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide35 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.576, m = 3.180, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide36 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.576, m = 3.180, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide37 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.576, m = 3.180, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide38 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.576, m = 3.180, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide39 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.782, m = 3.183, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide40 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.782, m = 3.183, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide41 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.782, m = 3.183, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT curved_guide42 = Guide(
+    w1 = 0.017, h1 = 0.084, w2 = 0.017, h2 = 0.084, l = 0.4721,
+    R0 = 0.99, Qc = 0.0219, alpha = 2.782, m = 3.183, W = 0.003)
+  AT (0, 0, 0.4722)     RELATIVE PREVIOUS
+  ROTATED (0, 0.00970, 0) RELATIVE PREVIOUS
+
+COMPONENT CG2_Out = Arm()
+  AT (0, 0, 0.4722) RELATIVE PREVIOUS
+
+COMPONENT L_monitor5 = L_monitor(
+    nchan = 140, filename = "Vulcan_asbuilt_L_monitor5.txt",
+    xwidth = 0.1, yheight = 0.1, Lmin = 0.0, Lmax = 14.0)
+  AT (0, 0, 0.0001) RELATIVE PREVIOUS
+
+/* *************************************************************** */
+/* straight guide segment                                          */
+
+COMPONENT straight_section1 = Guide(
+    w1 = .017005, h1 = 0.083988, w2 = 0.017005, h2 = 0.083990, l = 1.7998,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.499, m = 3.153, W = 0.003)
+  AT (0, 0, 0.0002) RELATIVE  CG2_Out
+  ROTATED (0, 0.00970, 0) RELATIVE CG2_Out
+
+COMPONENT straight_section2 = Guide(
+    w1 = .017007, h1 = 0.083987, w2 = 0.017002, h2 = 0.083991, l = 1.7998,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.201, m = 3.140, W = 0.003)
+  AT (0, 0, 1.80004) RELATIVE  PREVIOUS
+
+COMPONENT straight_section3 = Guide(
+    w1 = .017004, h1 = 0.083991, w2 = 0.017004, h2 = 0.083991, l = 1.7998,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.287, m = 3.153, W = 0.003)
+  AT (0, 0, 1.80013) RELATIVE  PREVIOUS
+
+COMPONENT SG_Out = Arm()
+  AT (0, 0, 1.80007) RELATIVE PREVIOUS
+
+COMPONENT L_monitor6 = L_monitor(
+    nchan = 140, filename = "Vulcan_asbuilt_L_monitor6.txt",
+    xwidth = 0.1, yheight = 0.1, Lmin = 0.0, Lmax = 14.0)
+  AT (0, 0, 0.0001) RELATIVE PREVIOUS
+
+/* *************************************************************** */
+/* vertically tapered guide segment                                */
+
+COMPONENT VTG_Slit = Slit(
+    width = 0.017, height = 0.084)
+  AT (0, 0, 0.0003) RELATIVE SG_Out
+
+COMPONENT vertical_tapered_guide1 = Guide_gravity(
+    w1 = 0.017001, h1 = 0.083997, w2 = 0.016998, h2 = 0.083943, l =0.47983,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.750, W = 0.003,
+    mleft = 3.07, mright = 3.07, mtop = 3.60, mbottom = 3.60, G = 0)
+  AT (0, 0, 0.0004)  RELATIVE SG_Out
+
+COMPONENT vertical_tapered_guide2 = Guide_gravity(
+    w1 = 0.01700, h1 = 0.08393, w2 = 0.016995, h2 = 0.083769, l =0.4800,
+    R0 = 0.99, Qc = 0.0219, alpha = 4.131, W = 0.003,
+    mleft = 3.10, mright = 3.10, mtop = 3.60, mbottom = 3.60, G = 0)
+  AT (0, 0, 0.47993)  RELATIVE PREVIOUS
+
+COMPONENT vertical_tapered_guide3 = Guide_gravity(
+    w1 = 0.016997, h1 = 0.083773, w2 = 0.016999, h2 = 0.083499, l =0.47987,
+    R0 = 0.99, Qc = 0.0219, alpha = 4.131, W = 0.003,
+    mleft = 3.10, mright = 3.10, mtop = 3.60, mbottom = 3.60, G = 0)
+  AT (0, 0, 0.4801)  RELATIVE PREVIOUS
+
+COMPONENT vertical_tapered_guide4 = Guide_gravity(
+    w1 = 0.016991, h1 = 0.083483, w2 = 0.016996, h2 = 0.083090, l =0.47483,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.750, W = 0.003,
+    mleft = 3.07, mright = 3.07, mtop = 3.60, mbottom = 3.60, G = 0)
+  AT (0, 0, 0.48025)  RELATIVE PREVIOUS
+
+COMPONENT vertical_tapered_guide5 = Guide_gravity(
+    w1 = 0.016991, h1 = 0.083101, w2 = 0.016994, h2 = 0.082584, l =0.470,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.696, W = 0.003,
+    mleft = 3.10, mright = 3.10, mtop = 3.60, mbottom = 3.60, G = 0)
+  AT (0, 0, 0.47493)  RELATIVE PREVIOUS
+
+COMPONENT vertical_tapered_guide6 = Guide_gravity(
+    w1 = 0.016991, h1 = 0.082572, w2 = 0.016999, h2 = 0.081945, l =0.463,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.696, W = 0.003,
+    mleft = 3.10, mright = 3.10, mtop = 3.60, mbottom = 3.60, G = 0)
+  AT (0, 0, 0.4701)  RELATIVE PREVIOUS
+
+COMPONENT vertical_tapered_guide7 = Guide_gravity(
+    w1 = 0.017001, h1 = 0.081945, w2 = 0.017002, h2 = 0.081187, l =0.45587,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.843, W = 0.003,
+    mleft = 3.02, mright = 3.02, mtop = 3.60, mbottom = 3.60, G = 0)
+  AT (0, 0, 0.4631)  RELATIVE PREVIOUS
+
+COMPONENT vertical_tapered_guide8 = Guide_gravity(
+    w1 = 0.017001, h1 = 0.081189, w2 = 0.017001, h2 = 0.080320, l =0.44883,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.843, W = 0.003,
+    mleft = 3.02, mright = 3.02, mtop = 3.60, mbottom = 3.60, G = 0)
+  AT (0, 0, 0.45629)  RELATIVE PREVIOUS
+
+COMPONENT vertical_tapered_guide9 = Guide_gravity(
+    w1 = 0.016990, h1 = 0.080303, w2 = 0.016991, h2 = 0.079289, l =0.44200,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.881, W = 0.003,
+    mleft = 3.00, mright = 3.00, mtop = 3.70, mbottom = 3.70, G = 0)
+  AT (0, 0, 0.44893)  RELATIVE PREVIOUS
+
+COMPONENT vertical_tapered_guide10 = Guide_gravity(
+    w1 = 0.016998, h1 = 0.079285, w2 = 0.016997, h2 = 0.078152, l =0.43500,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.610, W = 0.003,
+    mleft = 3.15, mright = 3.15, mtop = 3.70, mbottom = 3.70, G = 0)
+  AT (0, 0, 0.44210)  RELATIVE PREVIOUS
+
+COMPONENT vertical_tapered_guide11 = Guide_gravity(
+    w1 = 0.016998, h1 = 0.078150, w2 = 0.017002, h2 = 0.076860, l =0.42787,
+    R0 = 0.99, Qc = 0.0219, alpha = 4.035, W = 0.003,
+    mleft = 3.15, mright = 3.15, mtop = 3.65, mbottom = 3.65, G = 0)
+  AT (0, 0, 0.43510)  RELATIVE PREVIOUS
+
+COMPONENT vertical_tapered_guide12 = Guide_gravity(
+    w1 = 0.017001, h1 = 0.076851, w2 = 0.016998, h2 = 0.075431, l =0.42083,
+    R0 = 0.99, Qc = 0.0219, alpha = 4.035, W = 0.003,
+    mleft = 3.15, mright = 3.15, mtop = 3.70, mbottom = 3.70, G = 0)
+  AT (0, 0, 0.42828)  RELATIVE PREVIOUS
+
+COMPONENT vertical_tapered_guide13 = Guide_gravity(
+    w1 = 0.017000, h1 = 0.075419, w2 = 0.017002, h2 = 0.073850, l =0.41400,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.914, W = 0.003,
+    mleft = 3.10, mright = 3.10, mtop = 3.65, mbottom = 3.65, G = 0)
+  AT (0, 0, 0.42093)  RELATIVE PREVIOUS
+
+COMPONENT vertical_tapered_guide14 = Guide_gravity(
+    w1 = 0.016991, h1 = 0.073851, w2 = 0.016999, h2 = 0.072128, l =0.40700,
+    R0 = 0.99, Qc = 0.0219, alpha = 4.035, W = 0.003,
+    mleft = 3.15, mright = 3.15, mtop = 3.65, mbottom = 3.65, G = 0)
+  AT (0, 0, 0.41410)  RELATIVE PREVIOUS
+
+COMPONENT vertical_tapered_guide15 = Guide_gravity(
+    w1 = 0.0169981, h1 = 0.072125, w2 = 0.017001, h2 = 0.070227, l =0.39752,
+    R0 = 0.99, Qc = 0.0219, alpha = 3.823, W = 0.003,
+    mleft = 3.15, mright = 3.15, mtop = 3.65, mbottom = 3.65, G = 0)
+  AT (0, 0, 0.40710)  RELATIVE PREVIOUS
+
+COMPONENT VTG_Out = Arm()
+  AT (0, 0, 0.39762) RELATIVE PREVIOUS
+
+COMPONENT L_monitor7 = L_monitor(
+    nchan = 140, filename = "Vulcan_asbuilt_L_monitor7.txt",
+    xwidth = 0.1, yheight = 0.1, Lmin = 0.0, Lmax = 14.0)
+  AT (0, 0, 0.0001) RELATIVE PREVIOUS
+
+/* *************************************************************** */
+/* high-intensity/high-resolution tapered guide segment            */
+/* set by variable mode= hint/hres                                 */
+
+COMPONENT TG_Slit = Slit(
+    width = tg_w11, height = 0.0686)
+  AT (0, 0, 0.15906) RELATIVE VTG_Out
+
+COMPONENT tapered_guide1 = Guide_gravity(
+    w1 = tg_w11, h1 = tg_h11, w2 = tg_w21, h2 = tg_h21, l =0.39845,
+    R0 = 0.99, Qc = 0.0219, alpha = tg_alpha1, W = 0.003,
+    mleft = tg_m_sid1, mright = tg_m_sid1, mtop = tg_m_top1, mbottom = tg_m_top1, G = 0)
+  AT (0, 0, 0.0001) RELATIVE  TG_Slit
+
+COMPONENT tapered_guide2 = Guide_gravity(
+    w1 = tg_w12, h1 = tg_h12, w2 = tg_w22, h2 = tg_h22, l =0.40000,
+    R0 = 0.99, Qc = 0.0219, alpha = tg_alpha2, W = 0.003,
+    mleft = tg_m_sid2, mright = tg_m_sid2, mtop = tg_m_top2, mbottom = tg_m_top2, G = 0)
+  AT (0, 0, 0.39855)  RELATIVE  PREVIOUS
+
+COMPONENT tapered_guide3 = Guide_gravity(
+    w1 = tg_w13, h1 = tg_h13, w2 = tg_w23, h2 = tg_h23, l =0.40000,
+    R0 = 0.99, Qc = 0.0219, alpha = tg_alpha3, W = 0.003,
+    mleft = tg_m_sid3, mright = tg_m_sid3, mtop = tg_m_top3, mbottom = tg_m_top3, G = 0)
+  AT (0, 0, 0.4001)  RELATIVE  PREVIOUS
+
+COMPONENT tapered_guide4 = Guide_gravity(
+    w1 = tg_w14, h1 = tg_h14, w2 = tg_w24, h2 = tg_h24, l =0.39990,
+    R0 = 0.99, Qc = 0.0219, alpha = tg_alpha4, W = 0.003,
+    mleft = tg_m_sid4, mright = tg_m_sid4, mtop = tg_m_top4, mbottom = tg_m_top4, G = 0)
+  AT (0, 0, 0.4001)  RELATIVE  PREVIOUS
+
+COMPONENT tapered_guide5 = Guide_gravity(
+    w1 = tg_w15, h1 = tg_h15, w2 = tg_w25, h2 = tg_h25, l =0.37988,
+    R0 = 0.99, Qc = 0.0219, alpha = tg_alpha5, W = 0.003,
+    mleft = tg_m_sid5, mright = tg_m_sid5, mtop = tg_m_top5, mbottom = tg_m_top5, G = 0)
+  AT (0, 0, 0.4000)  RELATIVE  PREVIOUS
+
+COMPONENT tapered_guide6 = Guide_gravity(
+    w1 = tg_w16, h1 = tg_h16, w2 = tg_w26, h2 = tg_h26, l =0.36000,
+    R0 = 0.99, Qc = 0.0219, alpha = tg_alpha6, W = 0.003,
+    mleft = tg_m_sid6, mright = tg_m_sid6, mtop = tg_m_top6, mbottom = tg_m_top6, G = 0)
+  AT (0, 0, 0.37998)  RELATIVE  PREVIOUS
+
+COMPONENT tapered_guide7 = Guide_gravity(
+    w1 = tg_w17, h1 = tg_h17, w2 = tg_w27, h2 = tg_h27, l =0.33000,
+    R0 = 0.99, Qc = 0.0219, alpha = tg_alpha7, W = 0.003,
+    mleft = tg_m_sid7, mright = tg_m_sid7, mtop = tg_m_top7, mbottom = tg_m_top7, G = 0)
+  AT (0, 0, 0.3601)  RELATIVE  PREVIOUS
+
+COMPONENT tapered_guide8 = Guide_gravity(
+    w1 = tg_w18, h1 = tg_h18, w2 = tg_w28, h2 = tg_h28, l =0.29000,
+    R0 = 0.99, Qc = 0.0219, alpha = tg_alpha8, W = 0.003,
+    mleft = tg_m_sid8, mright = tg_m_sid8, mtop = tg_m_top8, mbottom = tg_m_top8, G = 0)
+  AT (0, 0, 0.3301)  RELATIVE  PREVIOUS
+
+COMPONENT tapered_guide9 = Guide_gravity(
+    w1 = tg_w19, h1 = tg_h19, w2 = tg_w29, h2 = tg_h29, l =0.23848,
+    R0 = 0.99, Qc = 0.0219, alpha = tg_alpha9, W = 0.003,
+    mleft = tg_m_sid9, mright = tg_m_sid9, mtop = tg_m_top9, mbottom = tg_m_top9, G = 0)
+  AT (0, 0, 0.2901)  RELATIVE  PREVIOUS
+
+COMPONENT TG_Out = Arm()
+  AT (0, 0, 0.23858) RELATIVE  PREVIOUS
+  
+COMPONENT L_monitor8 = L_monitor(
+    nchan = 140, filename = "Vulcan_asbuilt_L_monitor8.txt",
+    xwidth = 0.1, yheight = 0.1, Lmin = 0.0, Lmax = 14.0)
+  AT (0, 0, 0.0001) RELATIVE PREVIOUS
+
+/* *************************************************************** */
+/* final funnel segment                                            */
+/* not installed at present  May 2010                              */
+/* *************************************************************** */
+
+COMPONENT FU_Out = Arm()
+  AT (0, 0, 0.6324)  RELATIVE  TG_Out
+
+/* *************************************************************** */
+/* this is the sample position                                     */
+/* *************************************************************** */
+
+COMPONENT L_monitor9 = L_monitor(
+    nchan = 140, filename = "Vulcan_asbuilt_L_monitor9.txt",
+    xwidth = 0.15, yheight = 0.15, Lmin = 0.0, Lmax = 14.0,
+    restore_neutron = 1)
+  AT (0, 0, 0.971)  RELATIVE  FU_Out
+
+COMPONENT L_monitor10 = L_monitor(
+    nchan = 140, filename = "Vulcan_asbuilt_L_monitor10.txt",
+    xwidth = 0.002, yheight = 0.002, Lmin = 0.0, Lmax = 14.0,
+    restore_neutron = 1)
+  AT (0, 0, 0.972)  RELATIVE  FU_Out
+
+
+COMPONENT psd_sample_position = PSD_monitor(
+    nx = 50, ny = 50, filename = "Vulcan_asbuilt_sample_psd.txt",
+    restore_neutron = 1, xwidth = 0.05, yheight = 0.1)
+  AT (0, 0, 0.973) RELATIVE FU_Out
+
+
+COMPONENT psd_xscan_L = Monitor_nD(
+    options = "square, wavelength limits=[0.875 3.025] bins=21 x limits=[-0.03 0.03] bins=60, file=Vulcan_asbuilt_xscan.txt",
+    xwidth = 0.1, yheight = 0.1)
+  AT (0, 0, 0.974) RELATIVE FU_Out
+
+
+COMPONENT psd_yscan_L = Monitor_nD(
+    options = "square, wavelength limits=[0.875 3.025] bins=21 y limits=[-0.05 0.05] bins=100, file=Vulcan_asbuilt_yscan.txt",
+    xwidth = 0.1, yheight = 0.1)
+  AT (0, 0, 0.975) RELATIVE FU_Out
+
+
+COMPONENT sample = V_sample(
+    radius_i = 0.015, radius_o = 0.02, h = 0.05, 
+    target_x = -2, target_y = 0, target_z = 0, 
+    focus_xw = 0.780, focus_yh = 1.30, 
+    pack = 1, frac = 1 )
+  AT (0, 0, 1.000) RELATIVE  FU_Out
+
+ 
+/* *************************************************************** */
+/* detector module left 90 deg center                              */
+
+COMPONENT Detector_Position_c = Arm()
+  AT (-2, 0, 0)      RELATIVE sample
+  ROTATED (0, 90, 0) RELATIVE sample
+
+COMPONENT detector_90tc = PSD_TEW_monitor(
+    nbchan = 100, nxchan = 1, nychan = 1,
+    type = "time",
+    filename = "Vulcan_asbuilt_Ldetector_l90tc.txt", 
+    format = out_format,
+    xwidth=0.770, yheight=0.385, 
+    bmin = 0, bmax = 100,
+    restore_neutron = 1)
+  AT (0, 0, 0)      RELATIVE Detector_Position_c
+  ROTATED (0, 0, 0) RELATIVE Detector_Position_c
+
+COMPONENT detector_90wc = PSD_TEW_monitor(
+    nbchan = 100, nxchan = 1, nychan = 1,
+    type = "wavelength",
+    filename = "Vulcan_asbuilt_Ldetector_l90wc.txt", 
+    format = out_format,
+    xwidth=0.770, yheight=0.385, 
+    bmin = 0, bmax = 10,
+    restore_neutron = 1)
+  AT (0, 0, 0)      RELATIVE Detector_Position_c
+  ROTATED (0, 0, 0) RELATIVE Detector_Position_c
+
+/* *************************************************************** */
+/* detector module left 90 deg top                                 */
+
+COMPONENT Detector_Position_t = Arm()
+  AT (-1.959, 0.403, 0)  RELATIVE sample
+  ROTATED ( 0, 90, 0) RELATIVE sample
+
+COMPONENT Detector_Position_tt = Arm()
+  AT (0, 0, 0)  RELATIVE Detector_Position_t
+  ROTATED (11.6, 0, 0) RELATIVE Detector_Position_t
+
+COMPONENT detector_90tt = PSD_TEW_monitor(
+    nbchan = 100, nxchan = 1, nychan = 1,
+    type = "time",
+    filename = "Vulcan_asbuilt_Ldetector_l90tt.txt", 
+    format = out_format,
+    xwidth=0.770, yheight=0.385, 
+    bmin = 0, bmax = 100,
+    restore_neutron = 1)
+  AT (0, 0, 0)      RELATIVE Detector_Position_tt
+  ROTATED (0, 0, 0) RELATIVE Detector_Position_tt
+
+COMPONENT detector_90wt = PSD_TEW_monitor(
+    nbchan = 100, nxchan = 1, nychan = 1,
+    type = "wavelength",
+    filename = "Vulcan_asbuilt_Ldetector_l90wt.txt", 
+    format = out_format,
+    xwidth=0.770, yheight=0.385, 
+    bmin = 0, bmax = 10,
+    restore_neutron = 1)
+  AT (0, 0, 0)      RELATIVE Detector_Position_tt
+  ROTATED (0, 0, 0) RELATIVE Detector_Position_tt
+
+/* *************************************************************** */
+/* detector module left 90 deg bottom                              */
+
+COMPONENT Detector_Position_b = Arm()
+  AT (-1.959, -0.403, 0)  RELATIVE sample
+  ROTATED (0, 90, 0) RELATIVE sample
+
+COMPONENT Detector_Position_bb = Arm()
+  AT (0, 0, 0)  RELATIVE Detector_Position_b
+  ROTATED (-11.6, 0, 0) RELATIVE Detector_Position_b
+
+COMPONENT detector_90tb = PSD_TEW_monitor(
+    nbchan = 100, nxchan = 1, nychan = 1,
+    type = "time",
+    filename = "Vulcan_asbuilt_Ldetector_l90tb.txt", 
+    format = out_format,
+    xwidth=0.770, yheight=0.385, 
+    bmin = 0, bmax = 100,
+    restore_neutron = 1)
+  AT (0, 0, 0)      RELATIVE Detector_Position_bb
+  ROTATED (0, 0, 0) RELATIVE Detector_Position_bb
+
+COMPONENT detector_90wb = PSD_TEW_monitor(
+    nbchan = 100, nxchan = 1, nychan = 1,
+    type = "wavelength",
+    filename = "Vulcan_asbuilt_Ldetector_l90wb.txt", 
+    format = out_format,
+    xwidth=0.770, yheight=0.385, 
+    bmin = 0, bmax = 10,
+    restore_neutron = 1)
+  AT (0, 0, 0)      RELATIVE Detector_Position_bb
+  ROTATED (0, 0, 0) RELATIVE Detector_Position_bb
+
+/* ************************************************************** */
+/* straight ahead detector                                        */
+
+COMPONENT monitor_beamstop = Monitor(
+    xmin = -1, xmax = 1, ymin = -1, ymax = 1)
+  AT (0, 0, 5)  RELATIVE sample
+  ROTATED (0, 0, 0) RELATIVE sample
+
+/* This section is executed when the simulation ends (C code). Other    */
+/* optional sections are : SAVE                                         */
+FINALLY
+%{
+%}
+/* The END token marks the instrument definition end */
+END
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

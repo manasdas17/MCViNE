@@ -1,0 +1,17 @@
+vulcan_asbuilt_L2d.instr
+
+Brief model description:
+- the model reflects the instrument configuration as of now (July 2010)
+- asbuilt dimensions and reflectivity profiels of guide systems
+- first bandwidth chopper installed; second chopper position empty
+- the last guide element of 1 meter length called funnel is not installed
+- a Vanadium sample is inserted
+- the left detector banks are modellled with a crude pixelation
+- the source is a parameterized representation of one pulse running SNS at 2MW and 60 Hz.repetition rate
+
+Parameters:
+- frequency of bandwidth chopper (default=60Hz)
+- center of wavelength band (determines chopper phase) (default=1.5 Angstroem)
+- instrument mode=hint (high-intensity); mode=hres (high-resolution) (defulat=hint)
+- PSD_TEW_monitor output format: table/McStas (default=table)
+
