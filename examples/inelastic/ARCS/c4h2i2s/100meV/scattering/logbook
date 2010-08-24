@@ -1,0 +1,14 @@
+run
+===
+To run the simulation
+
+./ssd
+
+or
+
+./ssd --mpirun.nodes=10
+
+To merge neutrons
+
+ mcvine-neutron-storage-merge --files=out-worker-*/neutrons --output=neutrons
+
