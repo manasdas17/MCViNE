@@ -1,0 +1,57 @@
+July 17, 2010
+
+arcs_moderator2sample.pml
+=========================
+
+use arcs-m2s
+------------
+
+from experiment 
+
+Ei=99.311357037 (solved from monitors)
+T0_nu = 120Hz
+emission_time = 12.4mus (solve from monitors)
+
+
+fermi_bladeradius = 0.5801
+fermi_nu = 600 (from ARCS_2963_run_info.xml)
+
+
+ $ arcs-m2s -E=99.31136 -T0_nu=120 -emission_time=12.4 --fermi_bladeradius=0.5801 --fermi_nu=600 --- -h -dump-pml=yes
+
+
+modified arcs_moderator2sample.pml 
+----------------------------------
+
+component fermichopper changed to
+
+        <component name="fermichopper">
+            <property name="nchan">31.0</property>
+            <property name="name">fermi_chop2</property>
+            <property name="max_iter">10000</property>
+            <property name="len">0.1</property>
+            <property name="nu">600.0</property>
+            <property name="bw">0.00041</property>
+            <property name="w">0.060364</property>
+            <property name="delta">0.0</property>
+            <property name="ymin">-0.0325</property>
+            <property name="tc">0.00267594853726</property>
+            <property name="blader">0.5801</property>
+            <property name="ymax">0.0325</property>
+        </component>
+
+component guide511: changed to optics/Dummy
+
+set property typos to relaxed
+
+
+
+simulated data
+
+ $ fitGaussian.py --filename=out-n1e8/mon1-tof.h5 --range=0.00271,0.00275 -outfile=m1fit --journal.debug.Fit1DFunction --errors_as_weights=off --scalefactor=1.e-9
+
+* bg: -14.7987223186
+* height: 4138.01018028 * 1e9
+* center: 0.00272603264306 (second)
+* fwhm: 6.23749319643e-06 (second)
+
