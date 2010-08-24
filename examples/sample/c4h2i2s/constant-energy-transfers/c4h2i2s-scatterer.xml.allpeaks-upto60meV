@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE scatterer>
+
+<!-- weights: absorption, scattering, transmission -->
+<homogeneous_scatterer mcweights="0, 1, 0">
+
+  <KernelContainer>
+
+
+
+    <ConstantEnergyTransferKernel energy-transfer="0.0*meV">
+    </ConstantEnergyTransferKernel>
+
+
+    <ConstantEnergyTransferKernel energy-transfer="9.8*meV">
+    </ConstantEnergyTransferKernel>
+
+
+    <ConstantEnergyTransferKernel energy-transfer="14.0*meV">
+    </ConstantEnergyTransferKernel>
+
+
+    <ConstantEnergyTransferKernel energy-transfer="23.2*meV">
+    </ConstantEnergyTransferKernel>
+
+
+    <ConstantEnergyTransferKernel energy-transfer="28.7*meV">
+    </ConstantEnergyTransferKernel>
+
+
+    <ConstantEnergyTransferKernel energy-transfer="30.2*meV">
+    </ConstantEnergyTransferKernel>
+
+
+    <ConstantEnergyTransferKernel energy-transfer="33.7*meV">
+    </ConstantEnergyTransferKernel>
+
+
+    <ConstantEnergyTransferKernel energy-transfer="45.0*meV">
+    </ConstantEnergyTransferKernel>
+
+
+    <ConstantEnergyTransferKernel energy-transfer="57.4*meV">
+    </ConstantEnergyTransferKernel>
+
+
+  </KernelContainer>
+  
+</homogeneous_scatterer>
+

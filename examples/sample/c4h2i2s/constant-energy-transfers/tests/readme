@@ -1,0 +1,18 @@
+Test the sample assembly.
+
+Use
+
+ ./run
+
+to run simulaiton
+
+
+You can use symbolic link to change c4h2is-scatterer.xml in the 
+parent directory of this directory.
+
+
+Use
+
+ PlotHist.py ./out/iqe_monitor.h5
+
+to plot the data
