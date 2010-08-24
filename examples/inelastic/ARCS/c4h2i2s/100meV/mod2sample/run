@@ -1,0 +1,2 @@
+rm -rf out
+arcs_moderator2sample -ncount=1e8 -buffer_size=10000000 --mpirun.nodes=10

@@ -1,0 +1,11 @@
+Some sim params were derived from experiment ARCS #2963
+
+Ei=99.311357037 (solved from monitors)
+T0_nu = 120Hz
+emission_time = 12.4mus (solve from monitors)
+
+
+fermi_bladeradius = 0.5801
+fermi_nu = 600 (from ARCS_2963_run_info.xml)
+
+
