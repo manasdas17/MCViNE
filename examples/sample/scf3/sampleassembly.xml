@@ -15,7 +15,7 @@
   </PowderSample>
   
   <LocalGeometer registry-coordinate-system="InstrumentScientist">
-    <Register name="c4h2i2s" position="(0,0,0)" orientation="(0,0,45)"/>
+    <Register name="scf3" position="(0,0,0)" orientation="(0,0,45)"/>
   </LocalGeometer>
 <!--
   <environment>
