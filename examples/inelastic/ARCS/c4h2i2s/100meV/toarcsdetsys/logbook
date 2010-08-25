@@ -1,0 +1,7 @@
+run
+===
+
+simulation::
+
+ $ ./sd -mpirun.nodes=10
+

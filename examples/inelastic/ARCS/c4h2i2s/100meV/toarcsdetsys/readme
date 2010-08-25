@@ -1,0 +1,5 @@
+In this directory will send simulated neutrons scattered by sample
+to the arcs detector system.
+
+You will need to create a symbolic link named "scattered-neutrons"
+to point to the neutrons you have saved in your "scattering" simulation.
