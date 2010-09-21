@@ -772,6 +772,10 @@ COMPONENT sample = PowderN(
 /* *************************************************************** */
 /* detector module left 90 deg center                              */
 
+/*comments from Li: add radial collimator between sample and center of the detector module*/
+
+
+
 COMPONENT Detector_Position_c = Arm()
   AT (-2, 0, 0)      RELATIVE sample
   ROTATED (0, 90, 0) RELATIVE sample
