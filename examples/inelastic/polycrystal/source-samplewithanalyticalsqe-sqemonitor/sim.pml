@@ -31,7 +31,6 @@
             <property name="xml">sampleassembly/Al-sqekernel-analyticalsqe.xml</property>
         </component>
 
-
         <component name="source">
             <property name="yh">0.1</property>
             <property name="dist">10.0</property>
@@ -50,18 +49,18 @@
 
 
         <component name="monitor">
-            <property name="max_angle_in_plane">120.0</property>
-            <property name="Ei">60.0</property>
             <property name="name">iqe_monitor</property>
+            <property name="Ei">60.0</property>
+            <property name="max_angle_in_plane">120.0</property>
             <property name="min_angle_in_plane">0.0</property>
+            <property name="max_angle_out_of_plane">30.0</property>
+            <property name="min_angle_out_of_plane">-30.0</property>
             <property name="Emax">45.0</property>
             <property name="Emin">-45.0</property>
+            <property name="nE">450</property>
             <property name="Qmax">10.0</property>
-            <property name="min_angle_out_of_plane">-30.0</property>
-            <property name="nE">90</property>
             <property name="Qmin">0.0</property>
-            <property name="max_angle_out_of_plane">30.0</property>
-            <property name="nQ">100</property>
+            <property name="nQ">400</property>
             <property name="filename">iqe_monitor.dat</property>
         </component>
 
