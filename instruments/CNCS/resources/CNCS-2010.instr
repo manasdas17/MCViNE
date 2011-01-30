@@ -1,0 +1,440 @@
+/*******************************************************************************
+*
+* McStas, neutron ray-tracing package
+*         Copyright 1997-2002, All rights reserved
+*         Risoe National Laboratory, Roskilde, Denmark
+*         Institut Laue Langevin, Grenoble, France
+*
+* *******************************************************************************/
+
+
+/******************************************************************/
+/*  input parameter: Ei - neutron incident energy, meV.           */
+/******************************************************************/
+/* Chopper phase is calculated as time delay after pulse (time=0) */
+/* in sec, according to the equation:                             */
+/* T = T0+Toff + (2286.3*L) / SQRT(Ei)			          */
+/* T0 -  peak flux offset tzero for moderator[mks]    		  */
+/* Toff - an offset due to phase misfit [mks]    		  */
+/* L - the distance from the moderator to the chopper  [meters]   */
+/* f - chopper frequency                               [Hz]       */ 
+/******************************************************************/
+
+DEFINE INSTRUMENT CNCS_test(Ei)
+
+DECLARE 	        
+%{			
+
+/****input, chopper speed, Hz ****/
+double f1=300.0;
+double f2=60.0;
+double f3=60.0;
+double f41=300.0;
+double f42=300.0;
+/*********************************/
+
+
+/*********************/
+double T0,Toff,ffict_tof,ffict_tof_deg,erange,emin,emax;
+double f1_phase,f1_phase_deg,f1_tof,f1_tof_deg;
+double sample_tof,sample_tof_start,sample_tof_stop;
+double mon3_tof,mon3_tof_start,mon3_tof_stop;
+double f2_phase,f2_phase_deg,f2_tof,f2_tof_deg;
+double f3_phase,f3_phase_deg,f3_tof,f3_tof_deg;
+double f41_phase,f41omega,f41_tof,f41_tof_deg;
+double f42_phase,f42omega,f42_tof,f42_tof_deg;
+
+/*  global guide properties, taken from G. Granroth source */
+double Gu_alpha = 5.0;
+double Gu_R = 0.99;
+double Gu_W = 0.002;
+double Gu_Qc = 0.02;
+
+
+/* CNCS distances [m]*/
+double d_mod_mon1=6.313    ;
+double L1=6.413            ; 
+double L2=7.515            ;
+double d_mod_mon2=7.556    ;     
+double L3=33.020           ; 
+double L4=34.784           ; 
+double d_mod_mon3=34.836   ;
+double d_mod_sample=36.262 ;
+double d_mod_det=39.762    ;
+
+
+%}			
+
+INITIALIZE
+%{
+/* set an energy range than is 20% of the desired energy*/
+    erange=0.20*Ei;
+    emin=Ei-erange;
+    emax=Ei+erange;
+
+
+/* determine peak flux offset tzero [s] for moderator, Ei must be [meV] */
+T0=(1.0+Ei);
+T0=198.2*pow(T0,-0.84098)/1.e6;
+Toff=0.0;PATH=/SNS/CNCS/shared/Software
+
+
+/*TOF [s] and phases [deg]               */
+/* T = T0(Ei) + (2286.3*L) / SQRT(Ei)    */
+
+     f1_tof=T0+(2286.3*L1)/sqrt(Ei)/1.e6;
+     f1_tof_deg=360.0 *f1*f1_tof;
+
+     ffict_tof=T0+(2286.3*6.350)/sqrt(Ei)/1.e6;
+
+     f2_tof=T0+(2286.3*L2)/sqrt(Ei)/1.e6;
+
+     f3_tof=T0+(2286.3*L3)/sqrt(Ei)/1.e6;
+
+     f41_tof=T0+(2286.3*L4)/sqrt(Ei)/1.e6;
+     f41omega=f41*2.0*3.1415926;
+
+     f42_tof=T0+(2286.3*L4)/sqrt(Ei)/1.e6;
+     f42omega=f42*2.0*3.1415926;
+
+     sample_tof=T0+(2286.3*d_mod_sample)/sqrt(Ei);
+     sample_tof_start=sample_tof-150;
+     sample_tof_stop=sample_tof+150;
+
+     mon3_tof=T0+(2286.3*d_mod_mon3)/sqrt(Ei);
+     mon3_tof_start=mon3_tof-150;
+     mon3_tof_stop=mon3_tof+150;
+
+%}
+
+TRACE
+COMPONENT arm1 = Progress_bar()
+AT(0,0,0) ABSOLUTE
+
+/* A source that produces a time and energy distribution from the SNS moderator files*/
+/* Author: G. Granroth, Origin: SNS Project Oak Ridge National Laboratory            */
+/* Date: July 2004, Version: 1.5                                                     */
+COMPONENT moderator=SNS_source_proved(S_filename="source_sct21a_td_05_1.dat",
+                        width=0.1,height=0.12,dist=1.000,xw=0.06,yh=0.14,
+			Emin=emin,Emax=emax)
+AT(0,0,0) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+
+/* Fiction Tof and Energy monitors for the test purposes only */
+/*COMPONENT dett=TOF_monitor(xmin = -.025,
+	              xmax = .025,
+		      ymin = -.05,
+		      ymax = .05,
+		      nchan=1400,
+                      t0=0,t1=2800,
+                      filename="tout.det")
+At (0,0,0.998) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1*/
+
+/*COMPONENT entest1=E_monitor(xmin = -.025,xmax = .025,
+		      	  ymin = -.05,ymax = .05,
+                          Emin=0.0, Emax=50.0, 
+                          nchan=100, 
+                          filename="entest1.det")
+AT (0,0,0.999) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1*/
+
+/*COMPONENT psdtest1=PSD_monitor(xmin = -.025,xmax = .025,
+		      	  ymin = -.05,ymax = .05,
+            		  nx=50, ny=100, 
+			  filename="psdtest1.det")
+AT (0,0,1.001) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1*/
+
+/*Neutron guides								    */
+/*Author: Kristian Nielsen, Origin: Risoe, Date: September 2 1998, Version: 1.31    */
+
+/* Guides N1, N2 and N3*/
+COMPONENT Guide1 = Guide(w1=0.05, h1=0.1, w2=0.05, h2=0.1, 
+			 l=5.280, m=2.5, R0=Gu_R, Qc=Gu_Qc, W=Gu_W, alpha=Gu_alpha)
+AT (0,0,1.002) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+
+/*Beam monitor N1. I use TOF, PSD and energy monitors together */
+/*COMPONENT dett1=TOF_monitor(xmin = -.025,xmax = .025,
+		      	    ymin = -.05, ymax = .05,
+		      	    nchan=1000, dt=50,
+                            filename="tof1.det")
+AT (0,0,6.313) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+COMPONENT edet1=E_monitor(xmin = -.025,xmax = .025,
+		      	  ymin = -.05,ymax = .05,
+                          Emin=0.0, Emax=50.0, 
+                          nchan=100, 
+                          filename="en1.det")
+AT (0,0,6.314) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+COMPONENT psd1=PSD_monitor(xmin = -.025,xmax = .025,
+		      	  ymin = -.05,ymax = .05,
+            		  nx=50, ny=100, 
+			  filename="psd1.det")
+AT (0,0,6.316) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+COMPONENT DivMon1 = DivPos_monitor(
+          npos=20, ndiv=20, filename="divmon2.dip",
+          xmin=-0.025, xmax=0.025, ymin=-0.05, ymax=0.05, 
+          maxdiv=2)
+AT (0,0,6.317) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1*/
+
+/* all Al-windows at CNCS */
+COMPONENT Al_win = Al_window(win_thick=0.033)
+AT (0,0,6.284) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+/*COMPONENT tof1a=TOF_monitor(xmin = -.025,xmax = .025,
+		      	    ymin = -.05,ymax = .05,
+		      	    nchan=1000,t0=2000,t1=7000,
+                            filename="tof1a.det")
+At (0,0,6.318) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1*/
+
+/* Fermi Chopper ********************************************************/
+/*                                                                      */
+/* transmission is 82% for straight geometry and wallwidth=0.0001       */
+/*                       h=0.00015   */
+/*                 76%   h=0.0002                                       */
+/*                                                                      */
+/*GeomOption  	1  	option: 0:straight 1:parabolic 2:circular 	*/
+/*zerotime 	1 	option: 1:'set time to zero' 0: 'do not' 	*/
+/*Nchannels 	1 	number of channels of the Fermi chopper 	*/
+/*Ngates 	1 	number of gates defining the channel: 4=default,*/ 
+/*                      6 or 8 for long wavelengths                     */
+/*freq 		Hz 	number of rotations per second 			*/
+/*height 	m 	height of the Fermi chopper 			*/
+/*width 	m 	total width of the Fermi chopper 		*/
+/*depth 	m 	channel length of the Fermi chopper 		*/
+/*r_curv 	m 	radius of curvature of the curved Fermi chopper */
+/*diameter 	m 	diameter of the shadowing cylinder 		*/
+/*Phase 	deg 	dephasing angle at zero time 			*/
+/*wallwidth 	m 	thickness of walls separating the channels 	*/
+
+
+COMPONENT FChopper = Vitess_ChopperFermi(
+                    GeomOption=2, zerotime=0, Nchannels=30,  Ngates=4,
+                    freq=f1,   height=0.102,   width=0.05,
+                    depth=0.017,  r_curv=2.2, diameter=0.08, Phase=-f1_tof_deg,
+                    wallwidth=0.00015, sGeomFileName="FC_geom_circ.dat")
+AT (0,0,6.413) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+/************************************************************************/
+
+/* 	12meV	        nchan=1000, t0=4000, t1=5000,*/
+/*	30meV 		    nchan=500, t0=2500, t1=3000,*/
+COMPONENT tof1b=TOF_monitor(xmin = -.025,xmax = .025,
+		      	    ymin = -.05,ymax = .05,
+		      	    nchan=1000, t0=8500, t1=9000,
+                            filename="tof1b.det")
+At (0,0,6.555) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+/* Guide N4, in between Fermi chopper and chopper 2*/
+COMPONENT Guide4 = Guide(w1=0.05, h1=0.1, w2=0.05, h2=0.1, 
+			 l=0.925, m=2.5, R0=Gu_R, Qc=Gu_Qc, W=Gu_W, alpha=Gu_alpha)
+AT (0,0,6.560) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+/* Chopper #2  Distance Moderator - CH#2 = 7515 mm, 60Hz = 2Pi*60= 376.9911 rad/s*/
+COMPONENT Chopper2=DiskChopper(R=0.25, theta_0=14.0, omega=376.9911, n=1, t_0=f2_tof)
+AT (0,0,7.515) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+/*Beam monitor N2. I use TOF, PSD and energy monitors together */
+/*COMPONENT tof2=TOF_monitor(xmin = -.025,xmax = .025,
+		      	    ymin = -.05,ymax = .05,
+		      	    nchan=1000,t0=5000,t1=6000,
+                            filename="tof2.det")
+At (0,0,7.556) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1*/
+
+/*COMPONENT ent2=E_monitor(xmin = -.025,xmax = .025,
+		      	  ymin = -.05,ymax = .05,
+                          Emin=0, Emax=20, 
+                          nchan=201, 
+                          filename="ent2.det")
+AT (0,0,7.557) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+COMPONENT psd2=PSD_monitor(xmin = -.015,xmax = .015,
+		      	  ymin = -.03,ymax = .03,
+            		  nx=180, ny=360, 
+			  filename="psd2.psd")
+AT (0,0,7.558) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1*/
+
+/* Guide N5*/
+COMPONENT Guide5 = Guide(w1=0.05, h1=0.1, w2=0.05, h2=0.1, 
+			 l=0.965, m=2.5, R0=Gu_R, Qc=Gu_Qc, W=Gu_W, alpha=Gu_alpha)
+AT (0,0,7.572) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+/* Curved Guide N6*/
+
+/*The component Bender taken from G. Granroth gives 73% transmittion at 10meV. Too optimistic??? */
+COMPONENT Guide6 = Bender(
+          w=0.05,h=0.10, r=2000.0, l = 14.98, d=0.001,k=1,
+          R0a=Gu_R, Qca=Gu_Qc, ma=2.5, alphaa=Gu_alpha, Wa=Gu_W,
+          R0i=Gu_R, Qci=Gu_Qc, mi=3.5, alphai=Gu_alpha, Wi=Gu_W,
+          R0s=Gu_R, Qcs=Gu_Qc, ms=2.5, alphas=Gu_alpha, Ws=Gu_W)
+AT (0,0,8.543) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+
+/* Guide N7*/
+COMPONENT Guide7 = Guide(w1=0.05, h1=0.1, w2=0.05, h2=0.1, 
+			 l=7.0, m=3.0, R0=Gu_R, Qc=Gu_Qc, W=Gu_W, alpha=Gu_alpha)
+AT (0,0,23.544) RELATIVE arm1 
+
+/* Guide N8 funnel*/
+COMPONENT Guide8 = Guide(w1=0.05, h1=0.1, w2=0.035, h2=0.0765, 
+			 l=2.447, m=3.5, R0=Gu_R, Qc=Gu_Qc, W=Gu_W, alpha=Gu_alpha)
+AT (0,0,30.545) RELATIVE arm1 
+
+/*Chopper #3  Distance Moderator - CH#3 = 33020 mm, 60Hz = 2Pi*60= 376.9911 rad/s*/
+COMPONENT Chopper3=DiskChopper(R=0.25, theta_0=14.0, omega=376.9911, n=1, t_0=f3_tof)
+AT (0,0,33.020) RELATIVE arm1
+
+/* Guide N9 funnel*/
+COMPONENT Guide9 = Guide(w1=0.0332, h1=0.076, w2=0.0218, h2=0.0597, 
+			 l=1.700, m=3.5, R0=Gu_R, Qc=Gu_Qc, W=Gu_W, alpha=Gu_alpha)
+AT (0,0,33.025) RELATIVE arm1
+
+/*COMPONENT tof3c=TOF_monitor(xmin = -.025,xmax = .025,
+		      	    ymin = -.05,ymax = .05,
+		      	    nchan=300,t0=45000,t1=47000,
+                            filename="tof3c.det")
+At (0,0,34.735) RELATIVE arm1*/
+
+
+/* Chopper #4  DoubleDisk. Distance Moderator - CH#4 = 34784 mm */
+/****************************************************************************************/
+/*theta_0  	deg  	Angular width of the slits. 	 				*/
+/*R 	m 	Radius of the disc 	 						*/
+/*h 	m 	Slit height (if = 0, equal to R). Auto centering of beam at h/2. 	*/
+/*omega 	rad/s 	Angular frequency of the Chopper 	 			*/
+/*n 	1 	Number of slits								*/
+/****************************************************************************************/
+/* Slits: 9 deg, 4.4 deg, 2 deg 				*/ 
+/* 9/4.4 deg is High Flux mode	                                */
+/* 2/4.4 deg is High Resolution mode	                        */
+COMPONENT Chopper41=DiskChopper(R=0.2825, h=0.065, theta_0=9.0, omega=-f41omega, n=1, t_0=-f41_tof)
+AT (0,0,34.784) RELATIVE arm1
+/*COMPONENT Chopper42=DiskChopper(R=0.2825, h=0.065, theta_0=9.0, omega=f42omega, n=1, t_0=f42_tof)
+AT (0,0,34.785) RELATIVE arm1*/
+
+/*Beam monitor N3. */
+/*  3meV nchan=150,t0=45950,t1=46100,		*/
+/* 10meV nchan=150,t0=25100,t1=25250,		*/
+/* 30meV nchan=150,t0=14450,t1=14600,		*/
+COMPONENT tof3a=TOF_monitor(xmin = -.025,xmax = .025,
+		      	    ymin = -.05,ymax = .05,nchan=300,
+                            t0=mon3_tof_start,
+                            t1=mon3_tof_stop,
+                            filename="tof3a.det")
+At (0,0,d_mod_mon3) RELATIVE arm1
+
+/*COMPONENT ent3=E_monitor(xmin = -.025,xmax = .025,
+		      	  ymin = -.05,ymax = .05,
+                          Emin=9, Emax=11, 
+                          nchan=190, 
+                          filename="ent3.det")
+AT (0,0,34.837) RELATIVE arm1
+
+/*COMPONENT psd3=PSD_monitor(xmin = -.015,xmax = .015,
+		      	  ymin = -.03,ymax = .03,
+            		  nx=180, ny=180, 
+			  filename="psd3.psd")
+AT (0,0,34.838) RELATIVE arm1*/
+
+
+/* Guide N10 funnel*/
+COMPONENT Guide10 = Guide(w1=0.0211, h1=0.0587, w2=0.0152, h2=0.0503, 
+			 l=0.875, m=3.5, R0=Gu_R, Qc=Gu_Qc, W=Gu_W, alpha=Gu_alpha)
+AT (0,0,34.863) RELATIVE arm1
+
+/* Guide N11      */
+COMPONENT Guide11 = Guide(w1=0.015, h1=0.05, w2=0.015, h2=0.05, 
+			 l=0.220, m=4.0, R0=Gu_R, Qc=Gu_Qc, W=Gu_W, alpha=Gu_alpha)
+AT (0,0,35.762) RELATIVE arm1
+
+/*monitor at the sample position */
+/*  3meV nchan=150,t0=47900,t1=48150,		*/
+/* 10meV nchan=150,t0=26150,t1=26300,		*/
+/* 12mev nchan=150,t0=23850,t1=24000   TOF~23930*/
+/* 30meV nchan=150,t0=15050,t1=15200   TOF~15140*/
+
+/*COMPONENT tof_sample=TOF_monitor(xmin = -.0075,xmax = .0075,
+		      ymin = -.025,ymax = .025,nchan=300,
+                      t0=sample_tof_start,t1=sample_tof_stop,
+                      filename="tofs.det")
+At (0,0,36.262) RELATIVE arm1*/
+
+/*COMPONENT ent_sample=E_monitor(xmin = -.0075,xmax = .0075,
+		      	    ymin = -.025,ymax = .025,
+                          Emin=29.5, Emax=30.5, 
+                          nchan=100, 
+                          filename="ents.det")
+AT (0,0,36.263) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1*/
+
+
+/*COMPONENT psd_sample=PSD_monitor(xmin = -.005,xmax = .005,
+		      	  ymin = -.005,ymax = .005,
+            		  nx=100, ny=100, 
+			  filename="psds.psd")
+AT (0,0,36.264) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1*/
+
+/* Vanadium sample, an isotropic scatterer.   */
+COMPONENT target = V_sample(radius_i = 0.0, radius_o = 0.002,
+  h = 0.05, focus_aw = 265, focus_ah = 35.0, pack = 1, 
+  sig_a = 0.0, target_z = 3.5)
+At (0,0,36.264) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+/* Here, a secondary arm - or reference point, placed  */
+/* on the sample position.                            */
+COMPONENT arm2 = Arm()
+AT (0,0,0) RELATIVE target
+
+
+/*CNCS radial collimator				*/
+/* setting parameters					*/  
+/*	rotation = roc * randpm1();			*/
+/*	theta_mini = -135.0 + rotation;			*/
+/*	theta_maxi = 135.0 + rotation;			*/
+/*	channels = 135;					*/
+/*	in_radius = 0.4;				*/
+/*	length = 0.1;					*/
+/*	h_in = 0.85;					*/
+/*	h_out = 0.85;					*/
+/*	foil_thick = 0.000127;				*/
+/*	7 absobing columns, one channel width each 	*/
+/*	at -135, -90, -45 degrees 			*/
+COMPONENT CNCS_coll = CNCS_radial_coll(roc = 0)
+  AT (0.02,0,0.02) RELATIVE arm2
+
+COMPONENT beamstop = Beamstop(radius=0.05)
+  AT (0,0,2.0) RELATIVE arm2
+
+/* For data output, let us place a detector. 		*/
+/* 2D	real CNCS detector				*/
+/* consists from 288 tubes from 3.814 deg to 132.606	*/
+/* 16 tubes cover 7.18 degrees -> 1 tube : 0.4487	*/
+/* length is 2 meters, pixels: 128 vert. resolution: 1.56cm*/
+/* distance between sample and detector: 3.5 m		*/
+
+COMPONENT CNCS_mon1 = Monitor_nD(
+  xwidth = 7.0, yheight = 2.0, zthick = 0,
+  options = "banana, theta limits=[3.814,132.606] bins=288, y bins=128, file = mon1_coll, verbouse, parallel")
+AT (0,0,0) RELATIVE arm2				
+
+/* Y-integrated						*/
+/*COMPONENT CNCS_mon2 = Monitor_nD(
+  xwidth = 7.0, yheight = 2.0, zthick = 0,
+  options = "banana, theta limits=[3.814,132.606] bins=288, multiple, file = mon2_coll, verbouse, parallel")
+AT (0,0,0) RELATIVE arm2*/
+
+
+FINALLY
+%{
+		printf("*********Summary************************\n");
+		printf("         TOF[s]  \n");
+		printf("CH1     %10.5f \n",f1_tof);
+		printf("CH2     %10.5f \n",f2_tof);
+		printf("CH3     %10.5f \n",f3_tof);
+		printf("CH41    %10.5f \n",f41_tof);
+		printf("CH42    %10.5e \n",f42_tof);
+		printf("*****************************************\n");
+%}
+END
+
+
+
