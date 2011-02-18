@@ -107,7 +107,7 @@ INITIALIZE
 %}
 
 /* Here comes the TRACE section, where the actual      */
-/* instrument is defined as a sequence of components.  */
+/* instrument is defined as a sequence of components. */
 TRACE
 
 COMPONENT progress_bar = Progress_bar(
