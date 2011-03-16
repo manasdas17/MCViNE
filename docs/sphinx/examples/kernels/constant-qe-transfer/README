@@ -1,5 +1,9 @@
 This example is for constant QE transfer scattering kernel.
 
+To run:
+
+ $ ./run.sh
+
 Instrument:
 
  MonochromaticSource -> Al sample with constant QE transfer kernel -> I(Q,E) monitor
@@ -10,3 +14,9 @@ Result:
  specified in kernel:
    Q = 3 AA-1
    E = 30 meV
+
+
+Output:
+
+  $ PlotHist.py out/iqe.h5
+ 
