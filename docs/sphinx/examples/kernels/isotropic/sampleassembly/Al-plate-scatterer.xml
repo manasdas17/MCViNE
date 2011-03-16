@@ -5,8 +5,7 @@
 <!-- weights: absorption, scattering, transmission -->
 <homogeneous_scatterer mcweights="1, 1, 1">
   
-  <IsotropicKernel>
-  </IsotropicKernel>
+  <IsotropicKernel/>
   
 </homogeneous_scatterer>
 
