@@ -20,6 +20,9 @@ PACKAGE = docs/sphinx/examples
 all: export
 #
 
+clean:: clean-data
+	BLD_ACTION="clean" $(MM) recurse
+
 
 TMPDIR=$(BLD_ROOT)/tmp/$(PROJECT)/$(PACKAGE)
 SPHINX_OUTPUT_DIR=$(EXPORT_ROOT)/docs/mcvine/sphinx
@@ -32,6 +35,7 @@ export:: export-package-data
 # remove .svn and Make.mm
 # create tar ball
 export-package-data:: 
+	rm -rf $(TMPDIR) ; \
 	mkdir -p $(TMPDIR) ; \
 	cd $(TMPDIR) ; \
 	svn co $(REPO) examples ; \
@@ -40,6 +44,11 @@ export-package-data::
 	mkdir -p $(SPHINX_OUTPUT_DIR); \
 	tar czf $(EXAMPLE_TARBALL) examples ; \
 
+
+clean-data::
+	find . -name out -exec rm -rf {} \; ; \
+	find . -name *.dat -exec rm -rf {} \; ; \
+	find . -name *.pml.* -exec rm -rf {} \; 
 
 # version
 # $Id$
