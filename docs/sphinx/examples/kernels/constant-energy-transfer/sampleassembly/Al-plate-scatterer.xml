@@ -5,8 +5,7 @@
 <!-- weights: absorption, scattering, transmission -->
 <homogeneous_scatterer mcweights="0, 1, 0">
   
-  <ConstantEnergyTransferKernel energy-transfer="10*meV">
-  </ConstantEnergyTransferKernel>
+  <ConstantEnergyTransferKernel energy-transfer="10*meV"/>
   
 </homogeneous_scatterer>
 
