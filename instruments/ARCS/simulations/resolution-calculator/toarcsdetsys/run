@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+python run.py ../sample-scattering-deltaQE 1 1000
+# python run.py ../sample-scattering-deltaQE 5
