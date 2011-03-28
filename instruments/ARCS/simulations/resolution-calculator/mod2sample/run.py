@@ -8,7 +8,7 @@ def execute(cmd):
         raise RuntimeError, "%r failed" % cmd
 
 
-def run(Ei, ncount):
+def run(Ei, ncount, nodes):
     # generate configration
     cmd = """
     arcs-m2s \
@@ -38,7 +38,8 @@ def run(Ei, ncount):
         os.environ['MCVINE_DIR'], 'share', 'mcvine',
         'instruments', 'ARCS', 'source_sct521_bu_17_1.dat',
         )
-    cmd += '-moderator.S_filename=%s' % moddat
+    cmd += ' -moderator.S_filename=%s ' % moddat
+    cmd += ' -mpirun.nodes=%s' % nodes
     cmd += '> m2s.log 2> m2s.err'
     execute(cmd)
 
@@ -78,7 +79,8 @@ def main():
     import sys
     Ei = float(sys.argv[1])
     ncount = float(sys.argv[2])
-    run(Ei, ncount)
+    nodes = int(sys.argv[3])
+    run(Ei, ncount, nodes)
     return
 
 
