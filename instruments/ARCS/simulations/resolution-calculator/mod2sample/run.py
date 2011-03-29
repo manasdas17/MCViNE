@@ -8,7 +8,8 @@ def execute(cmd):
         raise RuntimeError, "%r failed" % cmd
 
 
-def run(Ei, ncount, nodes):
+def run(Ei, ncount, nodes, fermichopper=None, dry_run=False):
+    fermichopper = fermichopper or "100-1.5-SMI"
     # generate configration
     cmd = """
     arcs-m2s \
@@ -18,6 +19,7 @@ def run(Ei, ncount, nodes):
         --E=%(Ei)s \
         --emission_time=0 \
         --- \
+        --fermichopper=fermichopper-%(fermichopper)s \
         -dump-pml
     """ % locals()
     execute(cmd)
@@ -26,7 +28,6 @@ def run(Ei, ncount, nodes):
     # fine tune configuraiton
     cmd = "arcs_moderator2sample --overwrite-datafiles --dump-pml"
     execute(cmd)
-
 
     # run simulation
     import os, shutil
@@ -41,14 +42,23 @@ def run(Ei, ncount, nodes):
     cmd += ' -moderator.S_filename=%s ' % moddat
     cmd += ' -mpirun.nodes=%s' % nodes
     cmd += '> m2s.log 2> m2s.err'
-    execute(cmd)
+    if dry_run:
+        print cmd
+    else:
+        execute(cmd)
 
 
     # analyze output
     # ... number of neutrons left
     neutronfile = os.path.join('out', 'neutrons')
     from mcni.neutron_storage.idf_usenumpy import count
-    ncountatsample = count(neutronfile)
+    if dry_run:
+        ncountatsample = 1000
+    else:
+        ncountatsample = count(neutronfile)
+
+    if ncountatsample == 0:
+        raise RuntimeError, "no neutrons at sample. need to increase mc samples at mod2sample simulation"
     
     cmd = [
         'arcs_analyze_beam',
@@ -71,7 +81,10 @@ def run(Ei, ncount, nodes):
     cmd += ['--monitor.menergy.nenergy=%s' % (1000)]
     # ... run
     cmd = ' '.join(cmd)
-    execute(cmd)
+    if dry_run:
+        print cmd
+    else:
+        execute(cmd)
     return
 
 
@@ -80,7 +93,11 @@ def main():
     Ei = float(sys.argv[1])
     ncount = float(sys.argv[2])
     nodes = int(sys.argv[3])
-    run(Ei, ncount, nodes)
+    fermichopper = sys.argv[4]
+    dry_run = int(sys.argv[5])
+    print 'fermichopper=', fermichopper
+    print 'dry_run=', dry_run
+    run(Ei, ncount, nodes, fermichopper=fermichopper, dry_run=dry_run)
     return
 
 
