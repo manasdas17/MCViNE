@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 
-# python run.py  700 1e8 5  700-0.5-AST 600 120 -1 0
-python run.py  700 1e6 5  700-0.5-AST 600 120 -1 0
-# python run.py  700 1e6 5  100-1.5-SMI 600 120 -1  0
+python run.py  \
+    -Ei=700 \
+    -ncount=1e7 \
+    -nodes=5 \
+    -moderator_erange=660,770 \
+    -fermichopper=700-0.5-AST \
+    -fermi_nu=600 \
+    -T0_nu=120 \
+    -emission_time=-1 \
+    -dry_run=off
+
 

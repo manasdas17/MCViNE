@@ -9,6 +9,7 @@ def execute(cmd):
 
 
 def run(Ei, ncount, nodes,
+        moderator_erange = None,
         fermichopper=None, fermi_nu=None, 
         T0_nu = None,
         emission_time = None,
@@ -32,7 +33,12 @@ def run(Ei, ncount, nodes,
 
 
     # fine tune configuraiton
-    cmd = "arcs_moderator2sample --overwrite-datafiles --dump-pml"
+    cmd = ["arcs_moderator2sample --overwrite-datafiles"]
+    Emin, Emax = moderator_erange
+    cmd.append('--moderator.Emin=%s' % Emin)
+    cmd.append('--moderator.Emax=%s' % Emax)
+    cmd.append("--dump-pml")
+    cmd = ' '.join(cmd)
     execute(cmd)
 
     # run simulation
@@ -94,24 +100,47 @@ def run(Ei, ncount, nodes,
     return
 
 
-def main():
-    import sys
-    Ei = float(sys.argv[1])
-    ncount = float(sys.argv[2])
-    nodes = int(sys.argv[3])
-    fermichopper = sys.argv[4]
-    fermi_nu= float(sys.argv[5])
-    T0_nu = float(sys.argv[6])
-    emission_time = float(sys.argv[7])
-    dry_run = int(sys.argv[8])
-    run(Ei, ncount, nodes,
-        fermichopper=fermichopper, 
-        fermi_nu = fermi_nu,
-        T0_nu = T0_nu,
-        emission_time = emission_time,
-        dry_run = dry_run)
-    return
+from pyre.applications.Script import Script as AppBase
+class App(AppBase):
 
+    class Inventory(AppBase.Inventory):
+
+        import pyre.inventory
+        Ei = pyre.inventory.float('Ei')
+        ncount = pyre.inventory.float('ncount', default=1e7)
+        nodes = pyre.inventory.int('nodes', default=5)
+        moderator_erange = pyre.inventory.str('moderator_erange')
+        fermichopper = pyre.inventory.str('fermichopper')
+        fermi_nu= pyre.inventory.float('fermi_nu', default=600)
+        T0_nu = pyre.inventory.float('T0_nu', default=120)
+        emission_time = pyre.inventory.float('emission_time', default=-1)
+        dry_run = pyre.inventory.bool('dry_run', default=False)
+
+    def main(self):
+        Ei = self.inventory.Ei
+        ncount = self.inventory.ncount
+        nodes = self.inventory.nodes
+        moderator_erange = self.inventory.moderator_erange or None
+        if moderator_erange:
+            moderator_erange = eval(moderator_erange)
+        fermichopper = self.inventory.fermichopper
+        fermi_nu = self.inventory.fermi_nu
+        T0_nu = self.inventory.T0_nu
+        emission_time = self.inventory.emission_time
+        dry_run = self.inventory.dry_run
+        run(Ei, ncount, nodes,
+            moderator_erange = moderator_erange,
+            fermichopper=fermichopper, 
+            fermi_nu = fermi_nu,
+            T0_nu = T0_nu,
+            emission_time = emission_time,
+            dry_run = dry_run)
+        return
+
+
+def main():
+    App('mod2sample').run()
+    return
 
 if __name__ == '__main__': main()
 
