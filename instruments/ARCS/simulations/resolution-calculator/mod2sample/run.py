@@ -8,18 +8,24 @@ def execute(cmd):
         raise RuntimeError, "%r failed" % cmd
 
 
-def run(Ei, ncount, nodes, fermichopper=None, dry_run=False):
+def run(Ei, ncount, nodes,
+        fermichopper=None, fermi_nu=None, 
+        T0_nu = None,
+        emission_time = None,
+        dry_run=False):
     fermichopper = fermichopper or "100-1.5-SMI"
+    emission_time = emission_time or -1
+    fermi_nu = fermi_nu or 600
+    T0_nu = T0_nu or 120
     # generate configration
     cmd = """
     arcs-m2s \
-        --fermi_nu=600 \
-        --fermi_bladeradius=0.5801 \
-        --T0_nu=120 \
+        --fermi_nu=%(fermi_nu)s \
+        --T0_nu=%(T0_nu)s \
         --E=%(Ei)s \
-        --emission_time=0 \
+        --emission_time=%(emission_time)s \
+        --fermi_chopper=%(fermichopper)s \
         --- \
-        --fermichopper=fermichopper-%(fermichopper)s \
         -dump-pml
     """ % locals()
     execute(cmd)
@@ -94,10 +100,16 @@ def main():
     ncount = float(sys.argv[2])
     nodes = int(sys.argv[3])
     fermichopper = sys.argv[4]
-    dry_run = int(sys.argv[5])
-    print 'fermichopper=', fermichopper
-    print 'dry_run=', dry_run
-    run(Ei, ncount, nodes, fermichopper=fermichopper, dry_run=dry_run)
+    fermi_nu= float(sys.argv[5])
+    T0_nu = float(sys.argv[6])
+    emission_time = float(sys.argv[7])
+    dry_run = int(sys.argv[8])
+    run(Ei, ncount, nodes,
+        fermichopper=fermichopper, 
+        fermi_nu = fermi_nu,
+        T0_nu = T0_nu,
+        emission_time = emission_time,
+        dry_run = dry_run)
     return
 
 
