@@ -57,16 +57,37 @@ def createScatteringKernel(Q,E):
     return 
 
 
+
+from pyre.applications.Script import Script as AppBase
+class App(AppBase):
+
+    class Inventory(AppBase.Inventory):
+
+        import pyre.inventory
+        ncount = pyre.inventory.float('ncount', default=1e7)
+        nodes = pyre.inventory.int('nodes')
+        Ei = pyre.inventory.float('Ei', default=700)
+        Q = pyre.inventory.float('Q', default=10)
+        E = pyre.inventory.float('E', default=100)
+        dQ = pyre.inventory.float('dQ', default=1)
+        dE = pyre.inventory.float('dE', default=10)
+
+        
+    def main(self):
+        ncount = self.inventory.ncount
+        nodes = self.inventory.nodes
+        Ei = self.inventory.Ei
+        Q = self.inventory.Q
+        E = self.inventory.E
+        dQ = self.inventory.dQ
+        dE = self.inventory.dE
+        run(ncount=ncount, nodes=nodes, Ei=Ei, Q=Q, E=E, dQ=dQ, dE=dE)
+        return
+    
+
 def main():
-    import sys
-    ncount = float(sys.argv[1])
-    nodes = int(sys.argv[2])
-    Ei = float(sys.argv[3])
-    Q = float(sys.argv[4])
-    E = float(sys.argv[5])
-    dQ = float(sys.argv[6])
-    dE = float(sys.argv[7])
-    run(ncount, nodes, Ei, Q, E, dQ, dE)
+    app = App('sample-scattering')
+    app.run()
     return
 
 
