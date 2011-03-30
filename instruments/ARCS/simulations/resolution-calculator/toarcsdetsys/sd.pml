@@ -17,7 +17,7 @@
         <facility name="source">sources/NeutronFromStorage</facility>
         <facility name="detsys">detectors/DetectorSystemFromXml</facility>
 
-        <property name="output-dir">out-detsys-sim</property>
+        <property name="output-dir">out</property>
         <property name="overwrite-datafiles">1</property>
 
         <property name="ncount">10</property>
