@@ -11,43 +11,28 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 
-PROJECT = mcvine/ARCS
-
-
-PROJ_TIDY += *.log *.tmp
+PROJECT = mcvine/instruments/ARCS/simulations
 
 # directory structure
 
-BUILD_DIRS = \
-	ARCS \
-	applications \
-	etc \
-	resources \
-	simulations \
-
-OTHER_DIRS = \
-
-RECURSE_DIRS = $(BUILD_DIRS) $(OTHER_DIRS)
-
 #--------------------------------------------------------------------------
+all: export
 #
 
-all:
-	BLD_ACTION="all" $(MM) recurse
+CP_RF = rsync -a
 
-distclean::
-	BLD_ACTION="distclean" $(MM) recurse
 
-clean::
-	BLD_ACTION="clean" $(MM) recurse
+EXPORT_SHAREDIR=$(EXPORT_ROOT)/share
+SHARE_DEST =  $(EXPORT_SHAREDIR)/$(PROJECT)
 
-tidy::
-	BLD_ACTION="tidy" $(MM) recurse
+export:: export-package-data
 
-docs::
-	BLD_ACTION="docs" $(MM) recurse
+export-package-data:: $(EXPORT_DATADIRS)
+	mkdir -p $(SHARE_DEST); \
+	$(CP_RF) ./ $(SHARE_DEST)/
+
 
 # version
-# $Id$
+# $Id: Make.mm 744 2010-12-09 15:11:58Z linjiao $
 
 # End of file
