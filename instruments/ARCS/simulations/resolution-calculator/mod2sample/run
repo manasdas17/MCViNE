@@ -2,7 +2,7 @@
 
 python run.py  \
     -Ei=700 \
-    -ncount=1e7 \
+    -ncount=1e6 \
     -nodes=5 \
     -moderator_erange=660,770 \
     -fermichopper=700-0.5-AST \

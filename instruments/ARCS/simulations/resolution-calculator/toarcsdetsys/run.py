@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+# constants
+import pyre.units.length
+import pyre.units.energy
+import pyre.units.time
+npixels = 117760 # number of pixels for ARCS
+mod2sample=13.6*pyre.units.length.meter
+mod_period=0.015*pyre.units.time.s # moderator period
+
 
 def execute(cmd):
     import os
@@ -9,7 +17,7 @@ def execute(cmd):
 
 
 def run(scattering_rundir, nodes, ncount=None):
-    sendneutronstodetsys(scattering_rundir, nodes, ncount=ncount)
+    # sendneutronstodetsys(scattering_rundir, nodes, ncount=ncount)
     eventsdat = 'out/events.dat'
     iqe = reduceToIQE(eventsdat)
     from histogram.hdf import dump
@@ -21,26 +29,23 @@ def run(scattering_rundir, nodes, ncount=None):
 
 def reduceToIQE(eventsfile):
     from mccomponents.detector.reduction_utils import events2IQE
+    from mccomponents.detector.event_utils import datatype
     import os
-    nevents = os.path.getsize(eventsfile) / 16.
+    nevents = os.path.getsize(eventsfile)*1. / datatype.itemsize
     assert int(nevents) - nevents == 0
     
     outfile = 'intensities.dat'
     pixelpositionsfile = 'pixelID2position.bin'
-    npixels = 117760
-    import pyre.units.length
-    import pyre.units.energy
-    import pyre.units.time
     iqe = events2IQE(
         eventsfile, nevents, 
         outfile,
         pixelpositionsfile, npixels,
-        mod2sample=13.6*pyre.units.length.meter,
+        mod2sample=mod2sample,
         Ei=700*pyre.units.energy.meV,
         Qaxis=(9.5,10.5,0.02), Eaxis=(30,120,1.),
         tofUnit=1*pyre.units.time.microsecond,
         toffset=0*pyre.units.time.s,
-        tofmax=0.015*pyre.units.time.s,
+        tofmax=mod_period,
         )
     return iqe
 
