@@ -4,9 +4,13 @@ python run.py \
     -ncount=1e6 \
     -nodes=2 \
     -Ei=700 \
-    -Q=10 \
-    -dQ=1 \
-    -E=100 \
-    -dE=20 \
+    -E_Q=Q*Q/1.8 \
+    -S_Q=1. \
+    -Qmin=0. \
+    -Qmax=28. \
+    -Qstep=0.1 \
+    -Emin=-50. \
+    -Emax=500. \
+    -Estep=1. \
     -mod2sample=../mod2sample \
 

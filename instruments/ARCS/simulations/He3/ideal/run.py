@@ -8,32 +8,28 @@ def execute(cmd):
         raise RuntimeError, "%r failed" % cmd
 
     
-def _computeAverageEnergy():
-    from histogram.hdf import load
-    import os
-    out = '../mod2sample/out-analyzer'
-    h = load(os.path.join(out, 'ienergy.h5'), 'ienergy')
-    e = (h.energy * h.I).sum()/h.I.sum()
-    return e
-
-
 def run(
     ncount=1e7, nodes=5, 
     Ei=700.,
-    Q=10, E=100, dQ=1, dE=10, 
+    E_Q="Q*Q/3", S_Q="1", 
+    Qmin=0, Qmax=10., Qstep=0.1,
+    Emin=0, Emax=50., Estep=1.,
     mod2sample='../mod2sample',
     ):
     Ei_user = Ei
-    Ei = _computeAverageEnergy()
+    Ei = computeAverageEnergy()
     if abs(Ei-Ei_user)/Ei > 0.1:
         raise ValueError, "nominal energy %s is too different from average energy at sample position %s" % (Ei_user, Ei)
     import os
     incident_neutrons = 'incident-neutrons'
     if not os.path.exists(incident_neutrons):
         os.link('../mod2sample/out/neutrons', 'incident-neutrons')
-
+        
     # create scattering kernel file
-    createScatteringKernel(Q,E)
+    createScatteringKernel(
+        E_Q=E_Q, S_Q=S_Q, 
+        Qmin=Qmin, Qmax=Qmax,
+        )
 
     # run main sim
     cmd = './sssd --ncount=%s --mpirun.nodes=%s' % (ncount, nodes)
@@ -41,8 +37,8 @@ def run(
 
     # reduce events to S(Q,E)
     eventsdat = 'out/events.dat'
-    Qaxis = Q-dQ, Q+dQ, dQ/50.
-    Eaxis = E-dE, E+dE, dE/50.
+    Qaxis = Qmin, Qmax, Qstep
+    Eaxis = Emin, Emax, Estep
     Ei, toffset = getEiToffset(mod2sample)
     iqe = reduceToIQE(eventsdat, Ei, toffset, Qaxis, Eaxis)
     from histogram.hdf import dump
@@ -56,11 +52,20 @@ def run(
     cmd = ['./analyze-sqe ']
     cmd.append('--mpirun.nodes=%s' % nodes)
     cmd.append('--ncount=%s --monitor.Ei=%s' % (ncount, Ei))
-    cmd.append(' --monitor.Qmin=%s --monitor.Qmax=%s' % (Q-dQ, Q+dQ))
-    cmd.append(' --monitor.Emin=%s --monitor.Emax=%s' % (E-dE, E+dE))
+    cmd.append(' --monitor.Qmin=%s --monitor.Qmax=%s' % (Qmin, Qmax))
+    cmd.append(' --monitor.Emin=%s --monitor.Emax=%s' % (Emin, Emax))
     cmd = ' '.join(cmd)
     execute(cmd)
     return
+
+
+def computeAverageEnergy():
+    from histogram.hdf import load
+    import os
+    out = '../mod2sample/out-analyzer'
+    h = load(os.path.join(out, 'ienergy.h5'), 'ienergy')
+    e = (h.energy * h.I).sum()/h.I.sum()
+    return e
 
 
 mod2sample_distance = 13.6
@@ -89,12 +94,14 @@ def getEiToffset(mod2sample):
     return e, toffset * 1e6
 
 
-def createScatteringKernel(Q,E):
+def createScatteringKernel(E_Q,S_Q, Qmin, Qmax):
     import os
     tf = os.path.join('sampleassembly', 'Al-scatterer.xml.template')
     t = open(tf).read()
-    t = t.replace('$Q$', '%s/angstrom' % Q)
-    t = t.replace('$E$', '%s*meV' % E)
+    t = t.replace('$E_Q$', E_Q)
+    t = t.replace('$S_Q$', S_Q)
+    t = t.replace('$Qmin$', str(Qmin))
+    t = t.replace('$Qmax$', str(Qmax))
     
     f = os.path.join('sampleassembly', 'Al-scatterer.xml')
     open(f, 'w').write(t)
@@ -141,10 +148,14 @@ class App(AppBase):
         ncount = pyre.inventory.float('ncount', default=1e7)
         nodes = pyre.inventory.int('nodes')
         Ei = pyre.inventory.float('Ei', default=700)
-        Q = pyre.inventory.float('Q', default=10)
-        E = pyre.inventory.float('E', default=100)
-        dQ = pyre.inventory.float('dQ', default=1)
-        dE = pyre.inventory.float('dE', default=10)
+        E_Q = pyre.inventory.str('E_Q', default='Q*Q/3.')
+        S_Q = pyre.inventory.str('S_Q', default='1.')
+        Qmin = pyre.inventory.float('Qmin', default=0)
+        Qmax = pyre.inventory.float('Qmax', default=10)
+        Qstep = pyre.inventory.float('Qstep', default=0.1)
+        Emin = pyre.inventory.float('Emin', default=0)
+        Emax = pyre.inventory.float('Emax', default=50)
+        Estep = pyre.inventory.float('Estep', default=0.5)
         mod2sample = pyre.inventory.str('mod2sample', default='../mod2sample')
 
         
@@ -152,15 +163,22 @@ class App(AppBase):
         ncount = self.inventory.ncount
         nodes = self.inventory.nodes
         Ei = self.inventory.Ei
-        Q = self.inventory.Q
-        E = self.inventory.E
-        dQ = self.inventory.dQ
-        dE = self.inventory.dE
+        E_Q = self.inventory.E_Q
+        S_Q = self.inventory.S_Q
+        Qmin = self.inventory.Qmin
+        Qmax = self.inventory.Qmax
+        Qstep = self.inventory.Qstep
+        Emin = self.inventory.Emin
+        Emax = self.inventory.Emax
+        Estep = self.inventory.Estep
         mod2sample = self.inventory.mod2sample
         run(
             ncount=ncount, nodes=nodes, 
-            Ei=Ei, Q=Q, E=E, dQ=dQ, dE=dE,
-            mod2sample = mod2sample,
+            Ei=Ei,
+            E_Q = E_Q, S_Q = S_Q,
+            Qmin=Qmin, Qmax=Qmax, Qstep=Qstep,
+            Emin=Emin, Emax=Emax, Estep=Estep,
+            mod2sample=mod2sample,
             )
         return
     

@@ -5,8 +5,12 @@
 <!-- weights: absorption, scattering, transmission -->
 <homogeneous_scatterer mcweights="0, 1, 0">
   
-  <ConstantQEKernel momentum-transfer="$Q$" energy-transfer="$E$">
-  </ConstantQEKernel>
+  <E_Q_Kernel 
+     E_Q="$E_Q$" 
+     S_Q="$S_Q$" 
+     Qmin="$Qmin$/angstrom"
+     Qmax="$Qmax$/angstrom"
+     />
   
 </homogeneous_scatterer>
 
