@@ -117,10 +117,11 @@ def reduceToIQE(eventsfile, Ei, toffset, Qaxis, Eaxis):
     
     outfile = 'intensities.dat'
     pixelpositionsfile = 'pixelID2position.bin'
+    solidanglesfile = 'solidangles.bin'
     iqe = events2IQE(
         eventsfile, nevents, 
         outfile,
-        pixelpositionsfile, npixels,
+        pixelpositionsfile, solidanglesfile, npixels,
         mod2sample=mod2sample,
         Ei=Ei*pyre.units.energy.meV,
         Qaxis=Qaxis, Eaxis=Eaxis,
