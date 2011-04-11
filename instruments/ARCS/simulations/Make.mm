@@ -19,7 +19,7 @@ PROJECT = mcvine/instruments/ARCS/simulations
 all: export
 #
 
-CP_RF = rsync -a
+CP_RF = rsync -a --copy-unsafe-links
 
 
 EXPORT_SHAREDIR=$(EXPORT_ROOT)/share
