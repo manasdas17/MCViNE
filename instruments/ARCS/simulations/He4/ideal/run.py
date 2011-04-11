@@ -96,14 +96,14 @@ def getEiToffset(mod2sample):
 
 def createScatteringKernel(E_Q,S_Q, Qmin, Qmax):
     import os
-    tf = os.path.join('sampleassembly', 'Al-scatterer.xml.template')
+    tf = os.path.join('sampleassembly', 'He4-scatterer.xml.template')
     t = open(tf).read()
     t = t.replace('$E_Q$', E_Q)
     t = t.replace('$S_Q$', S_Q)
     t = t.replace('$Qmin$', str(Qmin))
     t = t.replace('$Qmax$', str(Qmax))
     
-    f = os.path.join('sampleassembly', 'Al-scatterer.xml')
+    f = os.path.join('sampleassembly', 'He4-scatterer.xml')
     open(f, 'w').write(t)
     return 
 
