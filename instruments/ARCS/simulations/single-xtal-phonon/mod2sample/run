@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+python run.py  \
+    -Ei=100 \
+    -ncount=1e6 \
+    -nodes=2 \
+    -moderator_erange=80,120 \
+    -fermichopper=100-1.5-SMI \
+    -fermi_nu=600 \
+    -T0_nu=120 \
+    -emission_time=-1 \
+    -dry_run=off
+
+
