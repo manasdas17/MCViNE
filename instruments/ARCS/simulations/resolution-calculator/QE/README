@@ -1,0 +1,10 @@
+given saved neutrons at sample position from ../mod2sample,
+compute I(Q,E) spetrum of a sample with delta function scattering kernel
+
+S(Q,E) = delta(Q-Q0, E-E0)
+
+It includes scattering, and sending to detector system,
+and reduction.
+
+This is different from sample-scattering-deltaQE, which only has
+the scattering part.
