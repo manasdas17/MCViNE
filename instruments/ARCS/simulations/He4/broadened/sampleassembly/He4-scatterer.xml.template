@@ -5,9 +5,10 @@
 <!-- weights: absorption, scattering, transmission -->
 <homogeneous_scatterer mcweights="0, 1, 0">
   
-  <E_Q_Kernel 
+  <Broadened_E_Q_Kernel
      E_Q="$E_Q$" 
      S_Q="$S_Q$" 
+     sigma_Q="$sigma_Q$"
      Qmin="$Qmin$/angstrom"
      Qmax="$Qmax$/angstrom"
      />
