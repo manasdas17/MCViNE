@@ -43,7 +43,7 @@
 
 
         <component name="detector">
-            <property name="tofparams">0,0.02,1e-6</property>
+            <property name="tofparams">0,0.02,1e-7</property>
             <property name="instrumentxml">ARCS.xml</property>
             <property name="eventsdat">events.dat</property>
         </component>

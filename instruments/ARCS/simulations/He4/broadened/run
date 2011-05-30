@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 python run.py \
-    -ncount=1e6 \
-    -nodes=2 \
-    -Ei=687.834 \
+    -ncount=4e7 \
+    -nodes=8 \
+    -Ei=687 \
     -E_Q=0.522*Q*Q \
     -S_Q=1. \
-    -sigma_Q=Q/2. \
+    -sigma_Q=0.94*Q \
     -Qmin=0. \
     -Qmax=28. \
     -Qstep=0.1 \

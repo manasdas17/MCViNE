@@ -133,7 +133,7 @@ def reduceToIQE(eventsfile, Ei, toffset, Qaxis, Eaxis):
         mod2sample=mod2sample,
         Ei=Ei*pyre.units.energy.meV,
         Qaxis=Qaxis, Eaxis=Eaxis,
-        tofUnit=1*pyre.units.time.microsecond,
+        tofUnit=0.1*pyre.units.time.microsecond, # must be consistent with sssd.pml.detector.tofparams
         toffset=toffset*pyre.units.time.microsecond,
         tofmax=mod_period,
         )
