@@ -46,7 +46,7 @@ def run(
     cmd.append(' --monitor.Qmin=%s --monitor.Qmax=%s' % (Qmin, Qmax))
     cmd.append(' --monitor.Emin=%s --monitor.Emax=%s' % (Emin, Emax))
     cmd = ' '.join(cmd)
-    # execute(cmd)
+    execute(cmd)
     return
 
 
