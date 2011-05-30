@@ -6,12 +6,10 @@ python run.py \
     -Ei=687 \
     -E_Q=0.522*Q*Q \
     -S_Q=1. \
-    -sigma_Q=0.94*Q \
     -Qmin=0. \
     -Qmax=28. \
     -Qstep=0.1 \
     -Emin=-50. \
     -Emax=500. \
     -Estep=1. \
-    -mod2sample=../mod2sample \
 
