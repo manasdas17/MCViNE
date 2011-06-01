@@ -7,7 +7,7 @@
   <PowderSample name="He4" type="sample">
     <Shape>
       <!-- <block width="6*cm" height="10*cm" thickness="1*cm" /> -->
-      <cylinder radius="0.1*cm" height="0.1*cm" />
+      <cylinder radius="1*cm" height="2*cm" />
     </Shape>
     <Phase type="crystal">
       <ChemicalFormula>He4</ChemicalFormula>
