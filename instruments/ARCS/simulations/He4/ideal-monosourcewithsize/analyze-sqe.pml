@@ -39,10 +39,10 @@
             <property name="Ei">60.0</property>
             <property name="Qmin">0.0</property>
             <property name="Qmax">10.0</property>
-            <property name="nQ">100</property>
+            <property name="nQ">500</property>
             <property name="Emin">-45.0</property>
             <property name="Emax">45.0</property>
-            <property name="nE">100</property>
+            <property name="nE">500</property>
             <property name="filename">iqe.dat</property>
         </component>
 
