@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import numpy as np, histogram as H, histogram.hdf as hh
-from scipy.interpolate import interp1d
 
 
 def run(Q=20, E_Q=None, dQ=0.15, dE=60, iqe=None):
@@ -54,7 +53,7 @@ def run(Q=20, E_Q=None, dQ=0.15, dE=60, iqe=None):
 def test():
     E_Q = lambda Q: 0.522*Q*Q
     iqe = hh.load('iqe.h5')
-    run(Q=20, E_Q=E_Q, dQ=0.15, dE=60, iqe=iqe)
+    run(Q=27, E_Q=E_Q, dQ=0.2, dE=60, iqe=iqe)
     return
 
 
