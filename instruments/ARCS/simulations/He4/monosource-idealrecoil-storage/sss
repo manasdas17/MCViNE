@@ -8,7 +8,7 @@ def main():
     from mcvine.applications.InstrumentBuilder import build
     components = ['source', 'sample', 'storage']
     App = build(components)
-    app = App('sssd')
+    app = App('sss')
     app.run()
     return
 

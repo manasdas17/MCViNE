@@ -12,7 +12,7 @@
 
 <inventory>
 
-    <component name="sssd">
+    <component name="sss">
         <property name="sequence">['source', 'sample', 'storage']</property>
         <facility name="source">sources/MonochromaticSource</facility>
         <facility name="sample">samples/SampleAssemblyFromXml</facility>

@@ -30,7 +30,7 @@ def runsim(
     """source neutrons come from (x,y) going to direction z
     """
     # run main sim
-    cmd = './sssd --source.position="%s,%s,0"' % (x,y,)
+    cmd = './sss --source.position="%s,%s,0"' % (x,y,)
     execute(cmd)
     return
 
