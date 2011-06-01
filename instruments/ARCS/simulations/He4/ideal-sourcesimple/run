@@ -3,8 +3,8 @@
 python run.py \
     -ncount=1e6 \
     -nodes=2 \
-    -Ei=700 \
-    -E_Q=Q*Q/1.8 \
+    -Ei=687 \
+    -E_Q=0.522*Q*Q \
     -S_Q=1. \
     -Qmin=0. \
     -Qmax=28. \
@@ -12,5 +12,4 @@ python run.py \
     -Emin=-50. \
     -Emax=500. \
     -Estep=1. \
-    -mod2sample=../mod2sample \
 

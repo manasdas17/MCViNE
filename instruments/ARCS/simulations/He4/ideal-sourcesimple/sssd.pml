@@ -14,7 +14,7 @@
 
     <component name="sssd">
         <property name="sequence">['source', 'sample', 'storage', 'detector']</property>
-        <facility name="source">sources/NeutronFromStorage</facility>
+        <facility name="source">sources/Source_simple</facility>
         <facility name="sample">samples/SampleAssemblyFromXml</facility>
         <facility name="storage">monitors/NeutronToStorage</facility>
         <facility name="detector">detectors/DetectorSystemFromXml</facility>
@@ -28,7 +28,18 @@
 	
 
         <component name="source">
-            <property name="path">incident-neutrons</property>
+            <property name="radius">0.05</property>
+            <property name="width">0.0</property>
+            <property name="height">0.0</property>
+            <property name="dist">13.45</property>
+            <property name="E0">687.0</property>
+            <property name="dE">2.55</property>
+            <property name="gauss">1</property>
+            <property name="flux">1.0</property>
+            <property name="Lambda0">0.0</property>
+            <property name="dLambda">0.0</property>
+            <property name="xw">0.05</property>
+            <property name="yh">0.05</property>
         </component>
 
 
@@ -50,7 +61,7 @@
 
 
         <component name="geometer">
-            <property name="source">((0, 0, 13.45), (0, 0, 0))</property>
+            <property name="source">((0, 0, 0), (0, 0, 0))</property>
             <property name="sample">((0, 0, 13.6), (0, 0, 0))</property>
             <property name="storage">((0, 0, 13.6), (0, 0, 0))</property>
             <property name="detector">((0, 0, 13.6), (0, 0, 0))</property>
@@ -63,12 +74,5 @@
 
 <!-- version-->
 <!-- $Id$-->
-
-<!-- Generated automatically by Renderer on Wed Mar 30 17:23:25 2011-->
-
 <!-- End of file -->
-<!-- 
- automatically created by the following command:
- $ sssd -source=NeutronFromStorage -sample=SampleAssemblyFromXml -storage=NeutronToStorage -detector=DetectorSystemFromXml -dump-pml
--->
 

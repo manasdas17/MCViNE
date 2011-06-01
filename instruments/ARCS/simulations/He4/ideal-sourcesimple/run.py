@@ -14,16 +14,7 @@ def run(
     E_Q="Q*Q/3", S_Q="1", 
     Qmin=0, Qmax=10., Qstep=0.1,
     Emin=0, Emax=50., Estep=1.,
-    mod2sample='../mod2sample',
     ):
-    Ei_user = Ei
-    Ei = computeAverageEnergy()
-    if abs(Ei-Ei_user)/Ei > 0.1:
-        raise ValueError, "nominal energy %s is too different from average energy at sample position %s" % (Ei_user, Ei)
-    import os
-    incident_neutrons = 'incident-neutrons'
-    if not os.path.exists(incident_neutrons):
-        os.link('../mod2sample/out/neutrons', 'incident-neutrons')
         
     # create scattering kernel file
     createScatteringKernel(
@@ -32,14 +23,15 @@ def run(
         )
 
     # run main sim
-    cmd = './sssd --ncount=%s --mpirun.nodes=%s' % (ncount, nodes)
+    cmd = './sssd --source.E0=%s --ncount=%s --mpirun.nodes=%s' % (
+        Ei, ncount, nodes)
     execute(cmd)
 
     # reduce events to S(Q,E)
     eventsdat = 'out/events.dat'
     Qaxis = Qmin, Qmax, Qstep
     Eaxis = Emin, Emax, Estep
-    Ei, toffset = getEiToffset(mod2sample)
+    toffset = 0
     iqe = reduceToIQE(eventsdat, Ei, toffset, Qaxis, Eaxis)
     from histogram.hdf import dump
     dump(iqe, 'iqe.h5', '/', 'c')
@@ -59,40 +51,7 @@ def run(
     return
 
 
-def computeAverageEnergy():
-    from histogram.hdf import load
-    import os
-    out = '../mod2sample/out-analyzer'
-    h = load(os.path.join(out, 'ienergy.h5'), 'ienergy')
-    e = (h.energy * h.I).sum()/h.I.sum()
-    return e
-
-
 mod2sample_distance = 13.6
-def getEiToffset(mod2sample):
-    from histogram.hdf import load
-    import os
-
-    # I(energy)
-    ie = load(os.path.join(mod2sample, 'out-analyzer/ienergy.h5'),
-              'ienergy')
-    # average energy
-    e = (ie.I * ie.energy).sum()/ie.I.sum()
-    
-    # I(tof)
-    itof = load(os.path.join(mod2sample, 'out-analyzer/itof.h5'),
-                'itof')
-    # average tof
-    tof = (itof.I*itof.tof).sum()/itof.I.sum()
-    
-    from mcni.utils.conversion import e2v
-    v = e2v(e)
-    
-    L = mod2sample_distance
-    toffset = tof - (L/v)
-    # energy: meV, toffset: microsecond
-    return e, toffset * 1e6
-
 
 def createScatteringKernel(E_Q,S_Q, Qmin, Qmax):
     import os
@@ -157,7 +116,6 @@ class App(AppBase):
         Emin = pyre.inventory.float('Emin', default=0)
         Emax = pyre.inventory.float('Emax', default=50)
         Estep = pyre.inventory.float('Estep', default=0.5)
-        mod2sample = pyre.inventory.str('mod2sample', default='../mod2sample')
 
         
     def main(self):
@@ -172,14 +130,12 @@ class App(AppBase):
         Emin = self.inventory.Emin
         Emax = self.inventory.Emax
         Estep = self.inventory.Estep
-        mod2sample = self.inventory.mod2sample
         run(
             ncount=ncount, nodes=nodes, 
             Ei=Ei,
             E_Q = E_Q, S_Q = S_Q,
             Qmin=Qmin, Qmax=Qmax, Qstep=Qstep,
             Emin=Emin, Emax=Emax, Estep=Estep,
-            mod2sample=mod2sample,
             )
         return
     
