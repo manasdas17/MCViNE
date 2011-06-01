@@ -70,14 +70,32 @@ def checkMiss(x,y):
 def checkHit(x,y):
     print '*'*3, "checkHit:", x,y; 
     #
+    from math import sqrt
+    #
     N = 10
     epsilon = 1e-4
+    # time when neutron hit the enter of the sample
+    t0 = mod2sample_distance/vi * 1e6 # microsecond 
+    # max distance to travel inside sample
+    maxsamplesize = sqrt(4*r*r + h*h) + r
+    
     for i in range(N):
         runsim(x,y)
         neutron = readNeutron()
         
         velocity = tuple(neutron.state.velocity)
         vx, vy, vz = velocity
+
+        vf = sqrt(vx*vx+vy*vy+vz*vz)
+        # max time travel inside sample
+        tinsample = maxsamplesize/min(vi, vf) * 1e6
+        
+        # time neutron exits sample - time neutron at center of sample
+        dt = neutron.time * 1e6 - t0
+        # print dt, tinsample
+        # import pdb; pdb.set_trace()
+        assert dt < tinsample, "dt=%s, tinsample=%s, neutron=%s" % (
+            dt, tinsample, neutron)
         
         position = tuple(neutron.state.position)
         x1,y1,z1 = position
@@ -115,6 +133,9 @@ def runsim(
 
 
 mod2sample_distance = 13.6
+Ei = 687
+from mcni.utils import conversion
+vi = conversion.e2v(Ei)
 
 
 def createScatteringKernel(E_Q,S_Q, Qmin, Qmax):
