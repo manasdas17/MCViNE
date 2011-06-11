@@ -69,12 +69,5 @@
 
 <!-- version-->
 <!-- $Id$-->
-
-<!-- Generated automatically by Renderer on Wed Mar 30 17:23:25 2011-->
-
 <!-- End of file -->
-<!-- 
- automatically created by the following command:
- $ sssd -source=NeutronFromStorage -sample=SampleAssemblyFromXml -storage=NeutronToStorage -detector=DetectorSystemFromXml -dump-pml
--->
 
