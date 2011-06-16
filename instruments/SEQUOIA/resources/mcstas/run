@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+./sim \
+	--ncount=1e6 \
+	Fermi_nu=600 \
+  	FC_num=1 \
+  	T0_nu=60 \
+  	Edes=100 \
+  	T0_off=0 \
+  	sxmin=-0.04 \
+  	sxmax=0.04 \
+  	symin=-0.04 \
+  	symax=0.04 \
+  	sam_file=none \
+
