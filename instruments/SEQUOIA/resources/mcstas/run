@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 ./sim \
-	--ncount=1e6 \
+	--ncount=1e7 \
 	Fermi_nu=600 \
   	FC_num=1 \
   	T0_nu=60 \
