@@ -1,3 +1,4 @@
 #!/usr/bin/env sh
 
+rm -rf out
 arcs_moderator2sample

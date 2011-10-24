@@ -75,8 +75,8 @@
             <property name="yh">0.12</property>
             <property name="dist">2.5</property>
             <property name="name">sns_source_r1</property>
-            <property name="Emin">56.0</property>
-            <property name="Emax">84.0</property>
+            <property name="Emin">5.0</property>
+            <property name="Emax">2000.0</property>
             <property name="S_filename">source_sct521_bu_17_1.dat</property>
             <property name="width">0.1</property>
             <property name="height">0.12</property>
@@ -457,16 +457,16 @@
 
 
         <component name="monitor1">
-            <property name="nchan">20000</property>
-            <property name="tmin">0.0</property>
-            <property name="ymax">0.035</property>
-            <property name="tmax">0.02</property>
+            <property name="name">tof_monitor2</property>
             <property name="restore_neutron">False</property>
             <property name="filename">mon1-tof.dat</property>
-            <property name="xmax">0.035</property>
+            <property name="nchan">20000</property>
+            <property name="tmin">0.0</property>
+            <property name="tmax">0.02</property>
             <property name="xmin">-0.035</property>
+            <property name="xmax">0.035</property>
             <property name="ymin">-0.035</property>
-            <property name="name">tof_monitor2</property>
+            <property name="ymax">0.035</property>
         </component>
 
 
