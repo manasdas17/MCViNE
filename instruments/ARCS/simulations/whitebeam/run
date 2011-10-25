@@ -1,3 +1,6 @@
 #!/usr/bin/env sh
 
-arcs_moderator2sample --ncount=1e7
+arcs_moderator2sample --typos=relaxed \
+    --mpirun.nodes=8 \
+    --ncount=1e6 \
+    $@

@@ -13,8 +13,9 @@
 <inventory>
 
     <component name="arcs_moderator2sample">
-	<!-- in white beam experiment, we turn off fermichopper -->
+	<!-- in white beam experiment, we turn off choppers -->
         <property name="fermichopper">optics/Dummy</property>
+        <facility name="t0chopper">optics/Dummy</facility>
 
         <property name="output-dir">out</property>
 	
@@ -32,7 +33,6 @@
         <facility name="guide412">optics/Guide_channeled</facility>
         <facility name="guide411">optics/Guide_channeled</facility>
         <facility name="guide311">optics/Guide_channeled</facility>
-        <facility name="t0chopper">optics/Vertical_T0</facility>
         <facility name="monitor">monitors/NeutronToStorage</facility>
         <facility name="core_vessel_insert">optics/Guide_channeled</facility>
         <facility name="guide215">optics/Guide_channeled</facility>
@@ -181,19 +181,6 @@
             <property name="mx">3.6</property>
             <property name="w1">0.05536</property>
             <property name="d">0.0</property>
-        </component>
-
-
-        <component name="t0chopper">
-            <property name="ymax">0.045</property>
-            <property name="len">0.474</property>
-            <property name="nu">60.0</property>
-            <property name="w2">0.101</property>
-            <property name="w1">0.08</property>
-            <property name="delta">0.0</property>
-            <property name="ymin">-0.045</property>
-            <property name="tc">0.00239711612595</property>
-            <property name="name">vertical_t0</property>
         </component>
 
 
