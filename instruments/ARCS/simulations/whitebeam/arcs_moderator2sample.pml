@@ -17,6 +17,14 @@
         <property name="fermichopper">optics/Dummy</property>
         <facility name="t0chopper">optics/Dummy</facility>
 
+        <!-- since we overloaded t0chopper, we need this so pyre does not complain -->
+        <property name="typos">relaxed</property>
+
+        <!-- mpi -->
+        <component name="mpirun">
+          <property name="nodes">8</property>
+        </component>
+
         <property name="output-dir">out</property>
 	
         <property name="sequence">['moderator', 'core_vessel_insert', 'shutter_guide', 'guide111', 'guide112', 'guide113', 'guide121', 'guide122', 'guide123', 'guide131', 'guide132', 'guide133', 't0chopper', 'guide211', 'guide212', 'guide213', 'guide214', 'guide215', 'fermichopper', 'monitor1', 'guide311', 'guide411', 'guide412', 'guide511', 'monitor', 'monitor2']</property>
@@ -75,8 +83,8 @@
             <property name="yh">0.12</property>
             <property name="dist">2.5</property>
             <property name="name">sns_source_r1</property>
-            <property name="Emin">5.0</property>
-            <property name="Emax">2000.0</property>
+            <property name="Emin">0.001</property>
+            <property name="Emax">50000.0</property>
             <property name="S_filename">source_sct521_bu_17_1.dat</property>
             <property name="width">0.1</property>
             <property name="height">0.12</property>
@@ -448,8 +456,8 @@
             <property name="restore_neutron">False</property>
             <property name="filename">mon1-tof.dat</property>
             <property name="nchan">20000</property>
-            <property name="tmin">0.0</property>
-            <property name="tmax">0.02</property>
+            <property name="tmin">-5e-7</property>
+            <property name="tmax">0.0199995</property>
             <property name="xmin">-0.035</property>
             <property name="xmax">0.035</property>
             <property name="ymin">-0.035</property>
