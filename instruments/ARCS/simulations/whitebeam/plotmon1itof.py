@@ -7,7 +7,7 @@ import pylab
 def main():
     # load data and apply efficiency
     itof = hh.load('out/mon1-tof.h5', 'I(tof)')
-    eff = hh.load('eff.h5')
+    eff = hh.load('mon1-eff.h5')
     i = itof.I * eff.I
     itof.I[:] = i
 
