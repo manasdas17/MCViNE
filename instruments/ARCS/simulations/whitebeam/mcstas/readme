@@ -1,0 +1,3 @@
+ARCS_10_25_2008.instr: mcstas instrument
+instr.c: instrument compiled to c
+instr: executable

@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+mcstas ARCS_10_25_2008.instr -o instr.c 
+gcc -o instr instr.c -lm
