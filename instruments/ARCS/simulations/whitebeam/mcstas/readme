@@ -1,3 +1,8 @@
 ARCS_10_25_2008.instr: mcstas instrument
 instr.c: instrument compiled to c
 instr: executable
+
+The instrument here is tailored to calculate white beam
+with guide enhancements.
+
+Results can be compared to mcvine simulations and they are the same.
