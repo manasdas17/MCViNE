@@ -19,13 +19,24 @@ def main():
     y = itof.I
 
     # convert to counts/10 mus
+    #  counts * 10, bins / 10
     from smooth import smooth
-    y = smooth(y, window_len=10)
-    y = y[:len(x)]
-    y *= 10.
+    y = smooth(y, window_len=10, window='flat')
+    # y = y[:len(x)]
+    # y *= 10.
+    indexes = range(5, len(x), 10)
+    x = x[indexes]
+    y = y[indexes] * 10
 
     # convert to arcs run #5
-    y *= 800*110e3/(2e6/60)
+    # according to ARCS_runinfo.xml of run #5
+    # beam power 110kW
+    # total run time is 22590/30 seconds
+    # the mc simulated was 2MW, 60Hz
+    y *= 22590/30*110e3/(2e6/60)
+
+    # extra scaling factor, why?
+    y *= 0.8
 
     # plot
     from matplotlib import pyplot

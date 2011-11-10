@@ -83,8 +83,8 @@
             <property name="yh">0.12</property>
             <property name="dist">2.5</property>
             <property name="name">sns_source_r1</property>
-            <property name="Emin">0.001</property>
-            <property name="Emax">50000.0</property>
+            <property name="Emin">0.</property>
+            <property name="Emax">100000.0</property>
             <property name="S_filename">source_sct521_bu_17_1.dat</property>
             <property name="width">0.1</property>
             <property name="height">0.12</property>
