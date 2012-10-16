@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+rm -f arcs_moderator2sample.pml*
+rm -rf out*
+rm -f mon*
