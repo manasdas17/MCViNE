@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 python run.py  \
-    -Ei=700 \
-    -ncount=1e9 \
-    -nodes=5 \
-    -moderator_erange=660,770 \
-    -fermichopper=700-0.5-AST \
+    -Ei=100 \
+    -ncount=1e8 \
+    -nodes=2 \
+    -moderator_erange=70,130 \
+    -fermichopper=100-1.5-SMI \
     -fermi_nu=600 \
     -T0_nu=120 \
     -emission_time=-1 \
