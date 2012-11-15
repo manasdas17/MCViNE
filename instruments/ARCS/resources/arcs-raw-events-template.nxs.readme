@@ -1,0 +1,26 @@
+To create a ARCS events file we need:
+
+* bank*_events: add fields 
+  * event_id: pixel ID for the events
+  * event_time_offset: tof offset for the events
+  * event_weight: weights of neutron events
+  * event_index: should be an array of size 2. first element 0, second element # of events.
+  * event_time_zero: neutron pulse time. should be an array of size 2. first element 0, second element 0.016666666
+
+* bank*_events: update fields
+  * total_counts
+
+* bank*: update
+  * data_x_y: histogram[x,y]. shape=8,128
+
+* total_counts
+
+* proton_charge
+
+
+Not critical
+------------
+* time signatures: start_time, end_time, duration
+* definition
+* notes
+* title

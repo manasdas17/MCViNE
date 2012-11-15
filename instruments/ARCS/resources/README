@@ -1,0 +1,2 @@
+arcs-events-template.nxs: template for generating ARCS "processed" mantid workspace file
+arcs-raw-events-template.nxs: template for generating ARCS "raw" events nexus file
