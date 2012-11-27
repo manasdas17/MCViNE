@@ -2,7 +2,7 @@
 
   <PowderSample name="V" type="sample">
     <Shape>
-      <block width="100*mm" height="100*mm" thickness="2*mm" />
+      <block width="100*mm" height="100*mm" thickness="0.1*mm" />
     </Shape>
     <Phase type="crystal">
       <ChemicalFormula>V</ChemicalFormula>

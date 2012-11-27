@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 
-rm -rf out && ./ssd --ncount=1e7
+rm -rf out && ./sss --ncount=1e7 --journal.debug.phonon_incoherent_elastic_kernel
+
 
