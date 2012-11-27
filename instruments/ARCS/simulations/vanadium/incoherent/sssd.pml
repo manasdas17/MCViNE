@@ -36,6 +36,11 @@
 
 
         <component name="sample">
+	    <property name="radius_o">0</property>
+	    <property name="h">0.</property>
+	    <property name="xwidth">0.1</property>
+	    <property name="yheight">0.1</property>
+	    <property name="zthick">0.01</property>
         </component>
 
 
@@ -55,7 +60,7 @@
 
         <component name="geometer">
             <property name="source">((0, 0, 13.45), (0, 0, 0))</property>
-            <property name="sample">((0, 0, 13.6), (0, 0, 0))</property>
+            <property name="sample">((0, 0, 13.6), (0, 45, 0))</property>
             <property name="storage">((0, 0, 13.6), (0, 0, 0))</property>
 <!--
             <property name="detector">((0, 0, 13.6), (0, 0, 0))</property>
