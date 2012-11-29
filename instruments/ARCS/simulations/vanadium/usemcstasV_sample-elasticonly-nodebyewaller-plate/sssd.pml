@@ -40,7 +40,7 @@
 	    <property name="h">0.</property>
 	    <property name="xwidth">0.1</property>
 	    <property name="yheight">0.1</property>
-	    <property name="zthick">0.01</property>
+	    <property name="zthick">0.001</property>
         </component>
 
 
