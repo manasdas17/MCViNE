@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE scatterer>
+
+<!-- mcweights: monte-carlo weights for 3 possible processes:
+     absorption, scattering, transmission -->
+<homogeneous_scatterer mcweights="0, 1, 0">
+
+  <Phonon_IncoherentElastic_Kernel dw_core='0.0*angstrom**2'>
+  </Phonon_IncoherentElastic_Kernel>
+
+</homogeneous_scatterer>
