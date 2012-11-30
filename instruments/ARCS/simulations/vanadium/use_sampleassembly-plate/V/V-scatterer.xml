@@ -8,10 +8,9 @@
 
   <KernelContainer>
 
-<!--    
     <Phonon_IncoherentElastic_Kernel dw_core='0.00669632*angstrom**2'>
     </Phonon_IncoherentElastic_Kernel>
--->
+
     <Phonon_IncoherentInelastic_Kernel>
       <LinearlyInterpolatedDOS idf-data-path="V-phonons/DOS">
       </LinearlyInterpolatedDOS>
