@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+NCOUNT=2e7
+rm -rf out-check-iqe/ ; mcvine-check-iqe -source.path=out/scattered-neutrons  -monitor.Ei=100 -monitor.Emin=-95 -monitor.Emax=95 -monitor.nE=190 -monitor.Qmin=0 -monitor.Qmax=13 -monitor.nQ=30 --ncount=$NCOUNT --buffer_size=1000000
+
+PlotHist.py out-check-iqe/iqe_monitor.h5 
+
+python -c "import histogram.hdf as hh; iqe = hh.load('out-check-iqe/iqe_monitor.h5'); iq = iqe.sum('energy'); hh.dump(iq, 'iq.h5'); ie = iqe.sum('Q'); hh.dump(ie, 'ie.h5')"
+
+PlotHist.py iq.h5
+
+PlotHist.py ie.h5

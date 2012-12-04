@@ -1,0 +1,28 @@
+Introduction
+============
+
+ARCS instrument: scattering from a vanadium sample.
+
+incident neutrons: can be neutrons at sample position from mod2sample
+simulation for ARCS
+
+
+Setup
+=====
+Make sure there is a file "incident-neutrons".
+It could be a symbolic link.
+Must be a mcvine neutron data file.
+Neutrons must have been saved at z=13.45 of ARCS instrument.
+
+
+Run
+===
+
+To run this simulation, 
+
+ $ ./run
+
+Quick check of simulation:
+
+ $ ./check-...
+

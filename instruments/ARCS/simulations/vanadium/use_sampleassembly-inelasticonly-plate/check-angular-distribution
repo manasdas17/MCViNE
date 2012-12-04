@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+rm -rf out-check-angular-distribution/ ; mcvine-check-angular-distribution -source.path=out/scattered-neutrons --ncount=1e7 --buffer_size=1000000
+
+PlotHist.py out-check-angular-distribution/angular-dist.h5 
