@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+rm -rf out && ./sss --ncount=1e7 
+#--journal.debug.phonon_incoherent_inelastic_kernel
+
+# rm -rf out && ./sss --ncount=1e8  --mpirun.nodes=10 
+
