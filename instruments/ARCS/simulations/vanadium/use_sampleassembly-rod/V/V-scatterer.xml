@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE scatterer>
+
+<!-- mcweights: monte-carlo weights for 3 possible processes:
+     absorption, scattering, transmission -->
+<homogeneous_scatterer mcweights="0, 1, 0">
+
+  <KernelContainer>
+
+    <Phonon_IncoherentElastic_Kernel dw_core='0.00669632*angstrom**2'>
+    </Phonon_IncoherentElastic_Kernel>
+
+    <Phonon_IncoherentInelastic_Kernel>
+      <LinearlyInterpolatedDOS idf-data-path="V-phonons/DOS">
+      </LinearlyInterpolatedDOS>
+    </Phonon_IncoherentInelastic_Kernel>
+
+  </KernelContainer>
+</homogeneous_scatterer>
