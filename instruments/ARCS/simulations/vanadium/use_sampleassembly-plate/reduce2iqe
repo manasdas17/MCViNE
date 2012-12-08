@@ -1,0 +1,3 @@
+#!/usr/bin/env python
+
+arcs-reduce-nxs-using-mantid -nxs=arcs-sim.nxs --ei_guess=117 --qaxis=0,13,0.1 
