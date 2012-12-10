@@ -6,7 +6,11 @@
      absorption, scattering, transmission -->
 <homogeneous_scatterer mcweights="0, 1, 0">
 
-  <KernelContainer>
+<!--
+  The two incoherent kernels stem from the same incoherent scattering 
+  cross section. The "average" option must be on.
+-->
+  <KernelContainer average='yes'>
 
     <Phonon_IncoherentElastic_Kernel dw_core='0.00669632*angstrom**2'>
     </Phonon_IncoherentElastic_Kernel>
