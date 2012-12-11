@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-rm -rf out && ./sss --ncount=5e7  --mpirun.nodes=5
-#--journal.debug.phonon_incoherent_inelastic_kernel
-
-# rm -rf out && ./sss --ncount=1e8  --mpirun.nodes=10 
-
+./scatter
+./create-nxs
+./reduce2iqe
