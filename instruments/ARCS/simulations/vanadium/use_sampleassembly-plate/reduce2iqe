@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env bash
 
 arcs-reduce-nxs-using-mantid -nxs=arcs-sim.nxs --ei_guess=117 --qaxis=0,13,0.1 
 arcs-extract-iqe-from-nxs iqe.nxs iqe.h5
