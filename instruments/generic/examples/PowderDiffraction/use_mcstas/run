@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+rm -rf out && ./ssd --ncount=1e7
+

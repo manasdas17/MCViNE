@@ -1,5 +1,0 @@
-
-def source():
-    from mcstas2.pyre_support import componentfactory
-    f = componentfactory( 'sources', 'Source_simple' )
-    return f('pseudo_monochromatic')
