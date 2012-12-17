@@ -6,7 +6,7 @@
   
   <PowderSample name="Al" type="sample">
     <Shape>
-      <hollowCylinder in_radius="2.59*inch" out_radius="2.593*inch" height="4.13*inch" />
+      <hollowCylinder in_radius="2.59*inch/2" out_radius="2.59*inch/2+0.003*inch" height="4.13*inch" />
     </Shape>
     <Phase type="crystal">
       <ChemicalFormula>Al</ChemicalFormula>
