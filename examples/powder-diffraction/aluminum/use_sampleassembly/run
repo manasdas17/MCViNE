@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+rm -rf out && ./ssd --ncount=1e7
+python -c "import histogram.hdf as hh; iqe = hh.load('out/iqe.h5'); iq=iqe.sum('energy'); hh.dump(iq, 'iq.h5')"
