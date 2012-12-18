@@ -16,7 +16,7 @@
         <property name="sequence">['source', 'sample', 'detector']</property>
         <facility name="source">sources/Source_simple</facility>
         <facility name="sample">samples/PowderN</facility>
-        <facility name="detector">monitors/PSD_monitor_4PI</facility>
+        <facility name="detector">monitors/IQE_monitor</facility>
 
         <property name="multiple-scattering">False</property>
         <property name="ncount">10000.0</property>
@@ -60,10 +60,20 @@
 	</component>
 
 	<component name="detector">
+<!-- if use PSD_monitor_4PI
 	  <property name="radius">3</property>
 	  <property name="nx">180</property>
 	  <property name="ny">90</property>
 	  <property name="filename">psd_4pi.dat</property>
+-->
+	  <property name="Ei">120</property>
+	  <property name="Emin">-50</property>
+	  <property name="Emax">50</property>
+	  <property name="nE">100</property>
+	  <property name="Qmin">0</property>
+	  <property name="Qmax">13</property>
+	  <property name="nQ">130</property>
+	  <property name="filename">iqe.dat</property>
 	</component>
 
         <component name="mpirun">
@@ -86,8 +96,4 @@
 <!-- Generated automatically by Renderer on Mon Dec 17 13:10:58 2012-->
 
 <!-- End of file -->
-<!-- 
- automatically created by the following command:
- $ ssd -source=Source_simple -sample=PowderN -detector=PSD_monitor_4PI -dump-pml
--->
 
