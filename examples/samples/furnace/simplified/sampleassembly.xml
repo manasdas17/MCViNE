@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE SampleAssembly>
+
+<SampleAssembly name="withfurnace">
+
+<!-- sample -->
+  <PowderSample name="sample" type="sample">
+    <Shape>
+      <cylinder radius="5.5*mm" height="50*mm" />
+    </Shape>
+    <Phase type="crystal">
+      <ChemicalFormula>V</ChemicalFormula>
+      <xyzfile>V.xyz</xyzfile>
+    </Phase>
+  </PowderSample>
+  
+<!-- Al can -->
+  <PowderSample name="al-can" type="sample">
+    <Shape>
+      <hollowCylinder in_radius="7.75*inch" out_radius="7.83*inch" height="15*inch"/>
+    </Shape>
+    <Phase type="crystal">
+      <ChemicalFormula>Al</ChemicalFormula>
+      <xyzfile>Al.xyz</xyzfile>
+    </Phase>
+  </PowderSample>
+
+<!-- Nb heating elements etc -->
+  <PowderSample name="heater" type="sample">
+    <Shape>
+      <hollowCylinder in_radius="4*inch" out_radius="4.016*inch" height="15*inch"/>
+    </Shape>
+    <Phase type="crystal">
+      <ChemicalFormula>Nb</ChemicalFormula>
+      <xyzfile>Nb.xyz</xyzfile>
+    </Phase>
+  </PowderSample>
+  
+  <LocalGeometer registry-coordinate-system="InstrumentScientist">
+    <Register name="sample" position="(0,0,0)" orientation="(0,0,0)"/>
+    <Register name="al-can" position="(0,0,0)" orientation="(0,0,0)"/>
+    <Register name="heater" position="(0,0,0)" orientation="(0,0,0)"/>
+  </LocalGeometer>
+
+</SampleAssembly>
