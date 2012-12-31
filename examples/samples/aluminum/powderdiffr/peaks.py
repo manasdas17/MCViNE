@@ -1,3 +1,7 @@
+"""
+cross section units must be barn.
+"""
+
 from mccomponents.sample.diffraction.SimplePowderDiffractionKernel import Peak
 
 peaks = [
