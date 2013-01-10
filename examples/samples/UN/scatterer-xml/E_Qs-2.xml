@@ -8,7 +8,7 @@
   <KernelContainer average="yes">
 
     <E_Q_Kernel 
-	E_Q="Q*Q*2.76e-3" 
+	E_Q="50" 
 	S_Q="Q*Q*2.76e-3 * exp(-2.76e-3 * Q*Q)"
 	Qmin="0./angstrom"
 	Qmax="30./angstrom"
@@ -17,14 +17,14 @@
 	/>
 
     <E_Q_Kernel 
-	E_Q="Q*Q*2.76e-3" 
-	S_Q="Q*Q*2.76e-3 * exp(-2.76e-3 * Q*Q)"
+	E_Q="100" 
+	S_Q="1./2 *2.76e-3*2.76e-3 * Q*Q*Q*Q * exp(-2.76e-3 * Q*Q)"
 	Qmin="0./angstrom"
 	Qmax="30./angstrom"
 	absorption_coefficient="32.395/meter"
 	scattering_coefficient="69.847/meter"
 	/>
-    
+
   </KernelContainer>
 
 </homogeneous_scatterer>
