@@ -41,11 +41,11 @@
 
         <component name="source">
             <property name="name">source_simple</property>
-            <property name="radius">0.05</property>
+            <property name="radius">0.0001</property>
             <property name="height">0.0</property>
             <property name="width">0.0</property>
-            <property name="xw">0.05</property>
-            <property name="yh">0.05</property>
+            <property name="xw">0.0001</property>
+            <property name="yh">0.0001</property>
             <property name="dist">10.0</property>
             <property name="flux">1.0</property>
             <property name="E0">500.0</property>
@@ -57,7 +57,7 @@
 
 
         <component name="sample">
-            <property name="xml">../sampleassembly/qho-2levels/sampleassembly.xml</property>
+            <property name="xml">sample/sampleassembly.xml</property>
         </component>
 
 
@@ -66,10 +66,10 @@
             <property name="Ei">500.0</property>
             <property name="Qmin">0.0</property>
             <property name="Qmax">30.0</property>
-            <property name="nQ">300</property>
+            <property name="nQ">100</property>
             <property name="Emax">500.0</property>
             <property name="Emin">-100.0</property>
-            <property name="nE">600</property>
+            <property name="nE">120</property>
             <property name="min_angle_in_plane">0.0</property>
             <property name="max_angle_in_plane">120.0</property>
             <property name="min_angle_out_of_plane">-30.0</property>
