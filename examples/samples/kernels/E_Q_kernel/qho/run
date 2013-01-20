@@ -1,0 +1,5 @@
+rm -rf out && ./ssd --ncount=1e7 --mpirun.nodes=10
+PlotHist.py out/iqe.h5
+python -c "import histogram.hdf as hh; iqe = hh.load('out/iqe.h5'); iq = iqe[(), (25,75)].sum('energy'); hh.dump(iq, 'iq.h5')"
+PlotHist.py iq.h5
+ 
