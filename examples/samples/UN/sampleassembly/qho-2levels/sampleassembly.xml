@@ -6,7 +6,7 @@
   
   <PowderSample name="UN" type="sample">
     <Shape>
-      <block width="10*cm" height="10*cm" thickness="10*cm" />
+      <block width="1*cm" height="1*cm" thickness="1*cm" />
     </Shape>
     <Phase type="crystal">
       <ChemicalFormula>UN</ChemicalFormula>
