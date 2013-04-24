@@ -12,6 +12,11 @@
 
 <!DOCTYPE instrument>
 
+<!--
+sequoia instrument xml file for mcvine simulation of 
+sequoia detector system that is compatible with mantid
+reduction.
+-->
 
 <Instrument guid="-1" name="SEQUOIA" id="-1">
 
