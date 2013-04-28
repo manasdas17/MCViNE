@@ -15,6 +15,7 @@ PACKAGE = instruments/SEQUOIA
 
 
 BUILD_DIRS = \
+	nxs \
 
 RECURSE_DIRS = $(BUILD_DIRS)
 

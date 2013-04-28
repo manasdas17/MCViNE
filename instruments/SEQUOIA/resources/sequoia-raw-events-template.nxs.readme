@@ -1,0 +1,57 @@
+How the template file was created
+=================================
+
+The file was created from SEQUOIA_30676_event.nxs.
+
+Removed:
+* SNSHitoTool
+* bank??_events/event_id(index, time_offset, time_zero)
+* instrument/bank??/event_id(index, time_offset, time_zero)
+* all children of DASlogs except "proton_charge"
+
+
+
+Modifying template to create simulated SEQUOIA event nexus file
+===============================================================
+
+To create a SEQUOIA events file we need to copy the template file
+to a new file, and do the following updates:
+
+* bank*_events: add fields 
+  * event_id: pixel ID for the events
+  * event_time_offset: tof offset for the events
+  * event_weight: weights of neutron events
+  * event_index: should be an array of size 2. first element 0, second element # of events.
+  * event_time_zero: neutron pulse time. should be an array of size 2. first element 0, second element 0.016666666
+
+* bank*_events: 
+  * total_counts
+
+* bank*: 
+  * data_x_y: histogram[x,y]. shape=8,128
+
+* total_counts
+
+
+
+To think about soon
+-------------------
+
+* proton_charge
+* monitors: monitor1, monitor2
+* sample
+* DASlogs
+
+
+
+Not critical
+------------
+* time signatures: start_time, end_time, duration
+* definition
+* notes
+* title
+* collection_identifier, collectioin_titile
+* entry_identifier, experiment_identifier
+* raw_frames
+* run_number
+* users: user1/2/3
