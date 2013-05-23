@@ -81,7 +81,7 @@ reduction.
     <DetectorSystem guid="5" name="detSystem" id="4">
 
     <Shape>
-      <hollowCylinder in_radius="5.4" out_radius="5.6" height="4."/>
+      <hollowCylinder in_radius="5.3" out_radius="5.6" height="4."/>
     </Shape>
 
         <DetectorPack guid="6" name="pack0" id="0">
