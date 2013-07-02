@@ -1,0 +1,575 @@
+DEFINE INSTRUMENT HYSPEC_comm(Edes, E_min, E_max, toffset_us=-1.0, freq=180, LMS=1.8, iv=-1.0, 
+if_Heusler=0.0, if_T1A=1.0, if_T1B=1.0, if_Fermi=1.0, S2_ang=-72.0, 
+if_BeamStop=0.0, V_Sample=0.0, KTA_Sample=0.0, if_A1=1.0,
+if_A2=1.0, Soeller=0.0, LM3S = 0.72, if_KTA_400 = 0.0, if_Ortho30=0.0)
+
+DECLARE
+%{
+   double samp_pos, freq_T0, phase_0 ;
+   double Fu_l ;
+   double Gu_m ;
+   double Gu_R ;
+   double Gu_alpha ;
+   double chan_num ;
+   double LMM, LMS, LSD, L1, L2, L3, x_mono, Rc, M4, Mi ;
+   double toffset, ang_freq ;
+   double t2_min, t2_max, t_T2_min, t_T2_max, t4_min, t4_max ;
+   double t_mon1_min, t_mon1_max, t_mon2_min, t_mon2_max, t_mon3_min, t_mon3_max ;
+   double t_mon0_min, t_mon0_max;
+   double Edes, E_min, E_max, freq, len, wid, nos, trn, barrel, height ;
+   double dist_eff, vi_eff, b_radius, b_height_min, b_height_max ;
+   double WL_mean, r0m, dPG, k_m, Q_m, sin_tm, Cl_ang, Al_ang, R_vert, R_horz ;
+   double phase_1A, radius_1A, ang_freq_1A, wid_1A, t_T1A_min, t_T1A_max ;
+   double phase_1B, radius_1B, ang_freq_1B, wid_1B, t_T1B_min, t_T1B_max ;
+   double phasefs_min, phasefs_max, phaseff_min, phaseff_max ;
+   double m_gap, eta_h, eta_v, wid_h, wid_v, nos_h, nos_v, ih, iv ;
+   double L_T2_M, L_T1B_M, L_MON2_M, L_MON1_M, L_VALV_M, L_SHUT2_M ;
+   double GAP_T0, GAP_T1A, GAP_T1B,GAP_T2, GAP_MON, GAP_VALV ;
+   double HALF_GAP_T0, HALF_GAP_T1A, HALF_GAP_T1B, HALF_GAP_T2, HALF_GAP_MON, HALF_GAP_VALV ;
+   double POS_T0, POS_T1A, POS_T1B, POS_T2, POS_MON1, POS_MON2, POS_VALV, POS_SHUT2, POS_G4 ;
+   double POS_G1A, POS_G1B, POS_G1C, POS_T0_T1A, POS_T1A_G2 ;
+   double LEN_G1A, LEN_G1B, LEN_G1C, LEN_T0_T1A, LEN_T1A_G2 ;
+   double LEN_SHUT2, LEN_SHUT2_VALV, LEN_VALV_MON1, LEN_MON1_T1B, LEN_T1B_T2 ;
+   double LEN_T2_MON2, LEN_G4, POS_G3, LEN_G3 ;
+   double W0, WS, H0, HS, WA, WB, HA, HB ;
+   double W1_G3, W2_G3, H1_G3, H2_G3, W1_G4, W2_G4, H1_G4, H2_G4 ;
+   double W1_SHUT2, W2_SHUT2, H1_SHUT2, H2_SHUT2 ;
+   double W1_SHUT2_VALV, W2_SHUT2_VALV, H1_SHUT2_VALV, H2_SHUT2_VALV ;
+   double W1_VALV_MON1, W2_VALV_MON1, H1_VALV_MON1, H2_VALV_MON1 ;
+   double W1_MON1_T1B, W2_MON1_T1B, H1_MON1_T1B, H2_MON1_T1B ;
+   double W1_T1B_T2, W2_T1B_T2, H1_T1B_T2, H2_T1B_T2 ;
+   double W1_T2_MON2, W2_T2_MON2, H1_T2_MON2, H2_T2_MON2 ;
+   double L1V, L2V, L1H, L2H, toffset_s ;
+   double LG4M, ih, M4, Mi, W0, WS, H0, HS;
+   double ax_def, az_def, cx_def, cz_def, Q_m_KTA, sin_tm_KTA ;
+   double S1_ang_KTA_deg, a_KTA_angstrom, zeta_ang_KTA_rad ;
+   int nos_eng, nos_t1a, nos_g2, nos_t1b, nos_t2, nos_g4, nos_samp, nos_mon1, nos_mon2, nos_det, nos_mon3;
+   int nos_mon0;
+   char *sourcename;
+%}
+
+INITIALIZE
+%{  
+   /* Input parameters: 
+      Incident energy - Edes (meV)
+      Minimum and maximum energies - E_min, E_max (meV)
+      Peak of time distribution, or if set to -1.0 a request for an estimate of optimal - toffset (s)
+      Rotational frequency for fermi chopper T2 - freq (Hz)
+      Monochromator to sample distance - LMS (m)
+      Lattice spaceing for the monochromator - dPG (Angstrom)
+      Gap between blades on the monochromator - m_gap (m)
+      Horizontal mosaic on the monochromator - eta_h (arc minutes)
+      Vertical mosaic on the monochromator - eta_v (arc minutes)
+      Horizontal width of the monochromator blades - wid_h (m)
+      Vertical width of the monochromator blades - wid_v (m)
+      Number of blades along the horizontal for the monochromator - nos_h (#)
+      Number of blades along the vertical for the monochromator - nos_v (#)
+      Determines vertical focus of monochromator - iv 
+      (selects 0=flat -1=focus at sample -2=focus at detector, or Radius in m when >0)
+      Disc chopper T1A is in, logical - if_T1A (int, 0 or 1)
+      Disc chopper T1B is in, logical - if_T1B (int, 0 or 1) 
+      Fermi chopper T2 is in, logical - if_Fermi (int, 0 or 1)
+      Generate event file just before monochromator, logical - out_PreMono (int, 0 or 1)
+      Generate event file just outside of drum shield, logical - out_ExitDrum (int, 0 or 1)
+      Generate event file at beamstop, logical - out_BeamStop (int, 0 or 1)
+      Beam Stop is in, logical - if_BeamStop 
+      Generate event file at sample position, logical - out_Sample  
+      Generate event file at far field position, logical - out_FarField
+   */
+
+   /* Distances:
+      LMM - moderator to monochromator
+      LCM - chopper to monochromator
+      LMS - monochromator to sample
+      LSD - sample to detector
+      Radius of curvature Rc = (0.5*L2 + L3)*L2/x_mono
+      where x_mono in the displacement of the monochromator
+   */
+
+/* Former parameters, now fixed */
+
+      M4=3.0; /* m value for G3 and all guides downstream - M4 () */
+      Mi=2.0;/* m value on the right side of the curved guide G2 - Mi () */
+      LG4M=0.3; /* Length between end of guide G4 and monochromator - LG4M (m) */
+      ih=0.0; /* Determines horizontal focus of monochromator - ih 
+      (selects 0=flat -1=focus at sample -2=focus at detector, or Radius in m when >0) */
+      W0=0.04; /* Width of guide at start of G3, assuming trumpet - W0 (m) */
+      WS=0.0; /* Effective width of guide at sample, assuming trumpet - WS (m) */
+      H0=0.15; /* Height of guide at start of G3, assuming trumpet - H0 (m) */
+      HS=0.0; /* Effective height of guide at sample, assuming trumpet - HS (m) */
+
+      x_mono = 0.16 ;
+      L1 = 9.93 ;
+      L2 = 48. * 0.501 ;
+      L3 = 5.0 ;
+      Rc = (0.5*L2 + L3)*L2/x_mono ;
+      LMM = L1 + L2 + L3 ;
+
+      GAP_T0 = 0.23 + 0.07 ;        HALF_GAP_T0 = 0.5 * GAP_T0 ;
+      GAP_T1A = 0.06 ;              HALF_GAP_T1A = 0.5 * GAP_T1A ;
+      GAP_T1B = 0.06 ;              HALF_GAP_T1B = 0.5 * GAP_T1B ;
+      GAP_T2 = 0.24 ;               HALF_GAP_T2 = 0.5 * GAP_T2 ;
+      GAP_MON = 0.0456 ;            HALF_GAP_MON = 0.5 * GAP_MON ;
+      GAP_VALV = 0.08 ;             HALF_GAP_VALV = 0.5 * GAP_VALV ;
+      
+      L_T2_M = 2.0098 ;
+      L_T1B_M = 2.7854 ;
+      L_MON1_M = 3.5664 ;
+      L_MON2_M = 1.4774 ;
+      L_VALV_M = 3.9106 ;
+      L_SHUT2_M = 4.7370 ;
+
+      POS_T0 = 8.50 ;
+      POS_T1A = 9.40 ;
+
+      POS_G1A = 2.3203 ;      LEN_G1A = 1.8686 ;
+      POS_G1B = 4.2328 ;      LEN_G1B = 2.0875 ;
+      POS_G1C = 6.3203 ;      LEN_G1C = POS_T0 - HALF_GAP_T0 - POS_G1C ;
+      POS_T0_T1A = POS_T0 + HALF_GAP_T0 ;
+      LEN_T0_T1A = POS_T1A - POS_T0 - HALF_GAP_T1A - HALF_GAP_T0 ;
+      POS_T1A_G2 = POS_T1A + HALF_GAP_T1A ;
+      LEN_T1A_G2 = L1 - POS_T1A_G2 ;
+
+      POS_G3 = LMM - L3 + 0.001 ;       POS_SHUT2 = LMM - L_SHUT2_M ;
+      LEN_G3 = POS_SHUT2 - POS_G3 ;     LEN_SHUT2 = 0.5 ; 
+      POS_VALV = LMM - L_VALV_M ;
+      LEN_SHUT2_VALV = POS_VALV - POS_SHUT2 - HALF_GAP_VALV - LEN_SHUT2 ;
+      POS_MON1 = LMM - L_MON1_M ;
+      LEN_VALV_MON1 = POS_MON1 - POS_VALV - HALF_GAP_VALV - HALF_GAP_MON ;
+      POS_T1B = LMM - L_T1B_M ;
+      LEN_MON1_T1B = POS_T1B - POS_MON1 - HALF_GAP_MON - HALF_GAP_T1B ;
+      POS_T2 = LMM - L_T2_M ;
+      LEN_T1B_T2 = POS_T2 - POS_T1B - HALF_GAP_T1B - HALF_GAP_T2 ;
+      POS_MON2 = LMM - L_MON2_M ;
+      LEN_T2_MON2 = POS_MON2 - POS_T2 - HALF_GAP_T2 - HALF_GAP_MON ;
+      POS_G4 = POS_MON2 + HALF_GAP_MON ;
+      LEN_G4 = LMM - POS_G4 - LG4M ; if(LEN_G4 <= 0.0) { LEN_G4 = 0.001 ; }
+
+      WA = W0 + WS * POS_G3 / (LMM + LMS - POS_G3) ; WB = WS / (LMM + LMS - POS_G3) ;
+      HA = H0 + HS * POS_G3 / (LMM + LMS - POS_G3) ; HB = HS / (LMM + LMS - POS_G3) ;
+
+      W1_G3 = WA ; W2_G3 = WA - WB * (POS_G3 + LEN_G3) ;
+      H1_G3 = HA ; H2_G3 = HA - HB * (POS_G3 + LEN_G3) ;
+      W1_SHUT2 = WA - WB * POS_SHUT2 ; W2_SHUT2 = WA - WB * (POS_SHUT2 + LEN_SHUT2) ;
+      H1_SHUT2 = HA - HB * POS_SHUT2 ; H2_SHUT2 = HA - HB * (POS_SHUT2 + LEN_SHUT2) ;
+      W1_SHUT2_VALV = WA - WB * (POS_SHUT2 + LEN_SHUT2) ; 
+      W2_SHUT2_VALV = WA - WB * (POS_SHUT2 + LEN_SHUT2 + LEN_SHUT2_VALV) ;
+      H1_SHUT2_VALV = HA - HB * (POS_SHUT2 + LEN_SHUT2) ; 
+      H2_SHUT2_VALV = HA - HB * (POS_SHUT2 + LEN_SHUT2 + LEN_SHUT2_VALV) ;
+      W1_VALV_MON1 = WA - WB * (POS_VALV + HALF_GAP_VALV) ; 
+      W2_VALV_MON1 = WA - WB * (POS_VALV + HALF_GAP_VALV + LEN_VALV_MON1) ;
+      H1_VALV_MON1 = HA - HB * (POS_VALV + HALF_GAP_VALV) ; 
+      H2_VALV_MON1 = HA - HB * (POS_VALV + HALF_GAP_VALV + LEN_VALV_MON1) ;
+      W1_MON1_T1B = WA - WB * (POS_MON1 + HALF_GAP_MON) ; 
+      W2_MON1_T1B = WA - WB * (POS_MON1 + HALF_GAP_MON + LEN_MON1_T1B) ;
+      H1_MON1_T1B = HA - HB * (POS_MON1 + HALF_GAP_MON) ; 
+      H2_MON1_T1B = HA - HB * (POS_MON1 + HALF_GAP_MON + LEN_MON1_T1B) ;
+      W1_T1B_T2 = WA - WB * (POS_T1B + HALF_GAP_T1B) ; 
+      W2_T1B_T2 = WA - WB * (POS_T1B + HALF_GAP_T1B + LEN_T1B_T2) ;
+      H1_T1B_T2 = HA - HB * (POS_T1B + HALF_GAP_T1B) ; 
+      H2_T1B_T2 = HA - HB * (POS_T1B + HALF_GAP_T1B + LEN_T1B_T2) ;
+      W1_T2_MON2 = WA - WB * (POS_T2 + HALF_GAP_T2) ; 
+      W2_T2_MON2 = WA - WB * (POS_T2 + HALF_GAP_T2 + LEN_T2_MON2) ;
+      H1_T2_MON2 = HA - HB * (POS_T2 + HALF_GAP_T2) ; 
+      H2_T2_MON2 = HA - HB * (POS_T2 + HALF_GAP_T2 + LEN_T2_MON2) ;
+      W1_G4 = WA - WB * POS_G4 ; W2_G4 = WA - WB * (POS_G4 + LEN_G4) ;
+      H1_G4 = HA - HB * POS_G4 ; H2_G4 = HA - HB * (POS_G4 + LEN_G4) ;
+
+      LSD = 4.5 ;
+
+    if ( if_Ortho30 > 0.9 && if_Ortho30 < 1.1 ) {sourcename= "/SNS/users/2xy/HYSPEC_model/source/SNS_TD_30o70p_fit_fit.dat";}
+    else
+    {sourcename= "/SNS/users/2xy/HYSPEC_model/source/SNS_TD_0o100p_fit_fit.dat";}
+
+/* Determine whether an estimate of toffset is requested, then make the estimate */
+
+    if (toffset_us > -1.1 && toffset_us < -0.9) { toffset_s = 0.3 * pow(( 1.0 + Edes ),(-0.9)) / 1000.0 ; }
+    else
+    { toffset_s = toffset_us / 1000000.0 ; }
+
+    if (Edes < 60.0) 
+    { freq_T0 = 30.0; }
+    else
+    { freq_T0 = 60.0; }
+
+/* Calculate the phase of the disc choppers or the time width at the TOF monitors*/
+
+   /* calculate the number of energy bins for the energy monitors */
+    nos_eng = E_max - E_min ;
+    if( nos_eng < 6 ) { nos_eng = 100 ; }
+
+   /* calculate T0 chopper phase */
+    phase_0 = POS_T0/(sqrt(Edes)*SE2V)+toffset_s;
+
+   /* calculate T1A chopper phase */
+    phase_1A = POS_T1A/(sqrt(Edes)*SE2V)+toffset_s;
+    t_T1A_min = POS_T1A/(sqrt(E_max)*SE2V) - 0.0020 + toffset_s;
+    t_T1A_max = POS_T1A/(sqrt(E_min)*SE2V) + 0.0020 + toffset_s;
+    ang_freq_1A = 2.0*PI*60.0 ;
+    radius_1A = 0.250 ;
+    wid_1A = 0.0946 ;
+   nos_t1a = 100000. * (t_T1A_max - t_T1A_min) ;
+
+   /* The T1B chopper parameters */
+    phase_1B = POS_T1B/(sqrt(Edes)*SE2V)+toffset_s;
+    t_T1B_min = POS_T1B/(sqrt(E_max)*SE2V) - 0.0020 + toffset_s;
+    t_T1B_max = POS_T1B/(sqrt(E_min)*SE2V) + 0.0020 + toffset_s;
+    ang_freq_1B = 2.0*PI*60.0 ;
+    radius_1B = 0.250 ;
+    wid_1B = 0.0946 ;
+   nos_t1b = 100000. * (t_T1B_max - t_T1B_min) ;
+
+   /* The T2 FermiChopper parameters:
+     dist_eff - The routine uses distance & nominal velocity to set the phase angle
+     vi_eff   - and we therefore have to calculate an effective distance to account
+              - for the offset time.  */
+    len = 0.01 ;      /* length of chopper slit */
+    wid = 0.0006  ;   /* width of one chopper slit */    
+    nos = 77 ;       /* number of chopper slits; note actual number is 64, but since we ignore Gd blade 0.6 mm thick... */
+    trn = 1.0  ;      /* transmission; account for Gd blade and E-dependent Al transmission AFTER results */
+    barrel = 0.12 ;       
+    height = 0.155 ;
+    vi_eff = sqrt(Edes) * SE2V ;
+    dist_eff = POS_T2 + vi_eff * toffset_s ;
+    t_T2_min = (POS_T2 + HALF_GAP_T2 - 0.0004)/(sqrt(Edes)*SE2V) - 0.000125 + toffset_s;    
+    t_T2_max = (POS_T2 + HALF_GAP_T2 - 0.0004)/(sqrt(Edes)*SE2V) + 0.000125 + toffset_s;
+    b_radius = barrel / 2.0 ;
+    b_height_min = -height / 2.0 ;
+    b_height_max =  height / 2.0 ;
+   nos_t2 = 100000. * (t_T2_max - t_T2_min) ;
+
+   /* Flight times at the end of the curved guide G2 */
+    t2_min = (L1 + L2)/(sqrt(E_max)*SE2V) - 0.0020 + toffset_s;    
+    t2_max = (L1 + L2)/(sqrt(E_min)*SE2V) + 0.0020 + toffset_s;    
+   nos_g2 = 100000. * (t2_max - t2_min) ;
+
+   /* Flight times at monitor 0 */
+    t_mon0_min = POS_G1A /(sqrt(E_max)*SE2V) - 0.0020 + toffset_s ;    
+    t_mon0_max = POS_G1A /(sqrt(E_min)*SE2V) + 0.0020 + toffset_s ;    
+   nos_mon0 = 100000. * (t_mon1_max - t_mon1_min) ;
+
+   /* Flight times at monitor 1 */
+    t_mon1_min = POS_MON1/(sqrt(E_max)*SE2V) - 0.0020 + toffset_s;    
+    t_mon1_max = POS_MON1/(sqrt(E_min)*SE2V) + 0.0020 + toffset_s;    
+   nos_mon1 = 100000. * (t_mon1_max - t_mon1_min) ;
+
+   /* Flight times at monitor 2 */
+    t_mon2_min = POS_MON2/(sqrt(Edes)*SE2V) - 0.000125 + toffset_s;    
+    t_mon2_max = POS_MON2/(sqrt(Edes)*SE2V) + 0.000125 + toffset_s;    
+   nos_mon2 = 100000. * (t_mon2_max - t_mon2_min) ;
+
+   /* Flight times at the end of the final guide G4 */
+    t4_min = (POS_G4 + LEN_G4)/(sqrt(Edes)*SE2V) - 0.000125 + toffset_s;    
+    t4_max = (POS_G4 + LEN_G4)/(sqrt(Edes)*SE2V) + 0.000125 + toffset_s;
+   nos_g4 = 100000. * (t4_max - t4_min) ;
+
+   /* Flight times at monitor 3 */
+    t_mon3_min =(LMM + LMS - LM3S) /(sqrt(Edes)*SE2V) - 0.000125 + toffset_s;    
+    t_mon3_max =(LMM + LMS -LM3S)/(sqrt(Edes)*SE2V) + 0.000125 + toffset_s;    
+   nos_mon3 = 100000. * (t_mon3_max - t_mon3_min) ;
+
+   /* Flight times at the sample and detector */
+    phasefs_min = (LMM + LMS)/(sqrt(Edes)*SE2V) - 0.0002 + toffset_s ;
+    phasefs_max = (LMM + LMS)/(sqrt(Edes)*SE2V) + 0.0002 + toffset_s ;
+   nos_samp = 100000. * (phasefs_max - phasefs_min) ;
+    phaseff_min = (LMM + LMS + LSD)/(sqrt(Edes)*SE2V) - 0.0002 + toffset_s ;
+    phaseff_max = (LMM + LMS + LSD)/(sqrt(Edes)*SE2V) + 0.0002 + toffset_s ;
+   nos_det = 100000. * (phaseff_max - phaseff_min) ;
+    
+/* consider replacing dPG, m_gap, eta_h, eta_v, wid_h, wid_v, nos_h, nos_v ALL with if_Heusler */
+
+    if( if_Heusler > -0.1 && if_Heusler < 0.1 ) 
+    { 
+      dPG = 3.3539 ;
+      m_gap = 0.0014 ;/* A GUESS.  STILL NEEDS TO BE MEASURED */
+      eta_h = 72.0 ;  /* From 1.2 deg FWHM, MH email Dec 6, 2011 */
+      eta_v = 72.0 ;   /* From 1.2 deg FWHM, MH email Dec 6, 2011 */
+      wid_h = 0.3 ;
+      wid_v = 0.012 ;
+      nos_h = 1.0 ;
+      nos_v = 13.0 ;
+    }else {
+      dPG = 3.43 ;
+      m_gap = 0.00125 ;/* A GUESS.  STILL NEEDS TO BE MEASURED */
+      eta_h = 48.0 * 0.45 / 0.8 ;
+      eta_v = 48.0 * 0.45 / 0.8 ; 
+      wid_h = 0.15 ;
+      wid_v = 0.015 ;
+      nos_h = 1.0 ;
+      nos_v = 9.0 ;
+    }
+
+  /* Calculate the monochromator parameter values */
+    WL_mean = sqrt(81.81/Edes);
+    Q_m = 2.0*PI/dPG ;
+    k_m = 2.0*PI/WL_mean ;
+    sin_tm = Q_m / (2.0 * k_m) ;
+    Cl_ang = asin(sin_tm) * 180.0/PI ;
+    Al_ang = 2.0 * Cl_ang ;
+    if(iv < -0.1) 
+    { 
+      L1V = LMM ; L2V = LMS ;
+      if(iv > -1.5 && iv < -0.5) {L2V = LMS ;}
+      if(iv > -2.5 && iv < -1.5) {L2V = LMS + LSD ;}
+      R_vert = 2.0 * L1V * L2V * sin_tm / (L1V + L2V) ; 
+    }
+    if(iv > -0.1 && iv < 0.1) { R_vert = 10000.0 ; }
+    if(iv > 0.1) { R_vert = iv ; }
+
+    R_horz = 10000.0 ; 
+
+//Calculate single crystal values
+
+  a_KTA_angstrom = 3.982;
+  if(if_KTA_400 > 0.9 && if_KTA_400 < 1.1)
+  {  Q_m_KTA = 2.0*PI / a_KTA_angstrom * 4.0 ;} else
+  {  Q_m_KTA = 2.0*PI / a_KTA_angstrom * 2.0 ;} /* assumes (200) */
+  sin_tm_KTA = Q_m_KTA / (2.0 * k_m) ;
+  S1_ang_KTA_deg = asin(sin_tm_KTA) * 180.0/PI ;
+  if(S2_ang < 0.0) {
+    S1_ang_KTA_deg = 90. - asin(sin_tm_KTA) * 180.0/PI ;
+  } else {
+    S1_ang_KTA_deg = -90. + asin(sin_tm_KTA) * 180.0/PI ;
+  }
+
+/* print suspect variables */
+    printf("R_vert, LMS, LMM, Q_m, WL_mean:  %g %g %g %g %g\n", R_vert, LMS, LMM, Q_m, WL_mean);
+     printf("S1_ang_KTA_deg, ax, az, cx, cz:  %g %g %g %g %g\n", S1_ang_KTA_deg, ax_def, az_def, cx_def, cz_def);
+%}   
+
+TRACE
+COMPONENT arm1 = Arm()
+AT(0,0,0) ABSOLUTE
+
+/* -------------------- The BL14B moderator source function ------------------------ */
+
+// COMPONENT mod_old=SNS_source(S_filename="/SNS/users/2xy/HYSPEC_model/source/source_sct41a_bd_14_1.dat", 
+//                           width=0.10, height=0.12, dist=2.5, xw=0.04, yh=0.132, 
+//                                                              Emin=E_min, Emax=E_max)
+// AT(0, 0, 0.0) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+/* Garrett's SNS moderator reading routine - emit's neutrons from Emin to Emax */
+
+COMPONENT source_00 = SNS_source4(
+        S_filename = sourcename,
+ 	width = 0.10, height = 0.12, 
+	dist = 2.5, xw = 0.04, yh = 0.132, 
+	Emin = E_min, Emax = E_max,
+	tinmin = 0, tinmax = 5000, 
+	sample_E = 2, sample_t = 1, proton_T = 0.7,
+	n_pulses = 1, delnfrac = 1.0e-30, frequency = 60)
+  AT (0,0,0) RELATIVE arm1
+
+/* ------- The guide in the shutter (G1A) & biological shield (G1B, G1C) ----------- */
+
+COMPONENT Mon0_toF = TOF_monitor2(xmin=-0.03, xmax=0.03, ymin=-0.100, ymax=0.100,
+               tmin=t_mon0_min, tmax=t_mon0_max, nchan=1000.0, filename="Mon0_ToF.dat")
+AT(0, 0, POS_G1A-0.002) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+COMPONENT Mon0_total = Monitor(
+    xmin = -0.03, xmax = 0.03, ymin = -0.1, ymax = 0.1)
+  AT (0, 0, POS_G1A-0.001) RELATIVE arm1
+  ROTATED (0, 0, 0) RELATIVE arm1
+
+COMPONENT G1A_guide = Guide(w1=0.04,h1=0.132,w2=0.04,h2=0.141,l=LEN_G1A,
+                             R0=0.98,m=3.0,W=0.0001,Qc=0.022,alpha=5.54)
+AT(0, 0, POS_G1A) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+/* ------- The guide in the biological shield & chopper cave (G1B, G1C) ----------- */
+
+COMPONENT G1B_guide = Guide(w1=0.04,h1=0.141,w2=0.04,h2=0.15,l=LEN_G1B,
+                             R0=0.98,m=3.0,W=0.0001,Qc=0.022,alpha=5.54)
+AT(0, 0, POS_G1B) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+COMPONENT G1C_guide = Guide(w1=0.04,h1=0.15,w2=0.04,h2=0.15,l=LEN_G1C,
+                             R0=0.98,m=3.0,W=0.0001,Qc=0.022,alpha=5.54)
+AT(0, 0, POS_G1C) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+/* -------------------------------- Chopper Box A ----------------------------------*/
+
+//COMPONENT T0_chopper = Vertical_T0(len=0.35, w1=0.085, w2=0.0954, nu=freq_T0, 
+//                                   tc=phase_0, ymin=-0.1775, ymax=0.1775)
+//WHEN( if_T0 > 0.9 && if_T0 < 1.1) AT(0, 0, POS_T0) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+COMPONENT T0_T1A_guide = Guide(w1=0.04,h1=0.15,w2=0.04,h2=0.15,l=LEN_T0_T1A,
+                            R0=0.98,m=3.0,W=0.0001,Qc=0.022,alpha=5.54)
+AT(0, 0, POS_T0_T1A) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+COMPONENT T1A_chopper = Chopper_v_mark( w=wid_1A, R=radius_1A, f=ang_freq_1A, n=1, pha=phase_1A )
+WHEN( if_T1A > 0.9 && if_T1A < 1.1) AT(0, 0, POS_T1A) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+/* -------------- The curved guide G2 connecting Box-A and G3--------------- */
+
+COMPONENT G2_curved_guide = Guide_curved_mark( w1=0.04, h1=0.15, l=0.500, R0=0.98, Qc=0.022,
+                                  alpha=5.54, ml=3.0, mr=Mi, mb=3.0, mt=3.0, W=0.0001,
+                                  R=Rc, nseg=48, dseg=0.001, psi_out=0, xout=0, zout=0) 
+AT(0, 0, L1) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+/* ----------- The components between the curved guide and box B ---------------- */
+
+COMPONENT G3_guide = Guide( w1=W1_G3,h1=H1_G3,w2=W2_G3,h2=H2_G3,l=LEN_G3,
+                            R0=0.98,m=M4,W=0.0001,Qc=0.022,alpha=5.54)
+AT(0, 0, POS_G3) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+COMPONENT Shutter2_guide = Guide( w1=W1_SHUT2,h1=H1_SHUT2,w2=W2_SHUT2,h2=H1_SHUT2,l=LEN_SHUT2,
+                            R0=0.98,m=M4,W=0.0001,Qc=0.022,alpha=5.54)
+AT(0, 0, POS_SHUT2) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+COMPONENT Shutter2_valve_guide = Guide( w1=W1_SHUT2_VALV,h1=H1_SHUT2_VALV,
+                            w2=W2_SHUT2_VALV,h2=H2_SHUT2_VALV,l=LEN_SHUT2_VALV,
+                            R0=0.98,m=M4,W=0.0001,Qc=0.022,alpha=5.54)
+AT(0, 0, (POS_SHUT2 + LEN_SHUT2)) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+COMPONENT Valve_mon1_guide = Guide( w1=W1_VALV_MON1,h1=H1_VALV_MON1,
+                                    w2=W2_VALV_MON1,h2=H2_VALV_MON1,l=LEN_VALV_MON1,
+                            R0=0.98,m=M4,W=0.0001,Qc=0.022,alpha=5.54)
+AT(0, 0, (POS_VALV + HALF_GAP_VALV)) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+COMPONENT Mon1_toF = TOF_monitor2(xmin=-0.03, xmax=0.03, ymin=-0.100, ymax=0.100,
+               tmin=t_mon1_min, tmax=t_mon1_max, nchan=nos_mon1, filename="Mon1_ToF.dat")
+AT(0, 0, POS_MON1) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+COMPONENT Mon1_total = Monitor(
+    xmin = -0.03, xmax = 0.03, ymin = -0.1, ymax = 0.1)
+  AT (0, 0, POS_MON1+0.001) RELATIVE arm1
+  ROTATED (0, 0, 0) RELATIVE arm1
+
+COMPONENT Mon1_t1b_guide = Guide( w1=W1_MON1_T1B,h1=H1_MON1_T1B,
+                                  w2=W2_MON1_T1B,h2=H2_MON1_T1B,l=LEN_MON1_T1B,
+                            R0=0.98,m=M4,W=0.0001,Qc=0.022,alpha=5.54)
+AT(0, 0, (POS_MON1 + HALF_GAP_MON)) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+
+/* -------------------------------- Chopper box B ------------------------------ */
+
+COMPONENT T1B_chopper = Chopper_v_mark( w=wid_1B, R=radius_1B, f=ang_freq_1B, n=1, pha=phase_1B )
+WHEN( if_T1B > 0.9 && if_T1B < 1.1 ) AT(0, 0, POS_T1B) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+COMPONENT T1B_T2_guide = Guide( w1=W1_T1B_T2, h1=H1_T1B_T2, w2=W2_T1B_T2, h2=H2_T1B_T2, l=LEN_T1B_T2,
+                           R0=0.98, m=M4, W=0.0001, Qc=0.022, alpha=5.54)
+AT(0, 0, (POS_T1B + HALF_GAP_T1B)) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+COMPONENT T2_Fermi = FermiChopper_mark( dist = dist_eff, rad = b_radius, nu = freq, 
+     ymin = b_height_min, ymax = b_height_max, w = wid, Nslit = nos, alpham = 0, Qc = 0, 
+                            m = 0, Wi = 0.0001, R0 = 0, Vi = vi_eff, slit = len, tran = trn)
+WHEN( if_Fermi > 0.9 && if_Fermi < 1.1 ) AT (0, 0, POS_T2) RELATIVE arm1
+
+COMPONENT T2_MON2_guide = Guide( w1=W1_T2_MON2, h1=H1_T2_MON2, 
+                                 w2=W2_T2_MON2, h2=H2_T2_MON2, l=LEN_T2_MON2,
+                           R0=0.98, m=M4, W=0.0001, Qc=0.022, alpha=5.54)
+AT(0, 0, (POS_T2 + HALF_GAP_T2)) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+COMPONENT Mon2_toF = TOF_monitor2(xmin=-0.03, xmax=0.03, ymin=-0.100, ymax=0.100,
+               tmin=t_mon2_min, tmax=t_mon2_max, nchan=nos_mon2, filename="Mon2_ToF.dat")
+AT(0, 0, POS_MON2) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+COMPONENT Mon2_total = Monitor(
+    xmin = -0.03, xmax = 0.03, ymin = -0.1, ymax = 0.1)
+  AT (0, 0, POS_MON2+0.001) RELATIVE arm1
+  ROTATED (0, 0, 0) RELATIVE arm1
+
+/* -------------------------- Straight guide G4 after box B --------------------------- */
+
+COMPONENT G4_guide = Guide( w1=W1_G4, h1=H1_G4, w2=W2_G4, h2=H2_G4, l=LEN_G4,
+                           R0=0.98, m=M4, W=0.0001, Qc=0.022, alpha=5.54)
+AT(0, 0, POS_G4) RELATIVE arm1 ROTATED (0,0,0) RELATIVE arm1
+
+/* ------------------- Focusing monochromator crystals ------------------------------- */
+
+COMPONENT arm2 = Arm() AT (0, 0, LMM) RELATIVE arm1 ROTATED (0, Al_ang, 0) RELATIVE arm1
+
+COMPONENT monochromator = Monochromator_curved( zwidth=wid_h, yheight=wid_v, gap=m_gap, 
+    NH=nos_h, NV=nos_v, mosaich=eta_h, mosaicv=eta_v, r0=0.8, t0=0.0, Q=Q_m, RV=R_vert, RH=R_horz)
+AT(0,0,0) RELATIVE arm2 ROTATED (0, Cl_ang, 0) RELATIVE arm1
+
+/* ------------------- Exit beam tube on the drum shield ----------------------------- */
+
+COMPONENT Exit_tube = Guide( w1=0.04, h1=0.128, w2=0.04, h2=0.085, l=0.3,
+                           R0=0.98, m=0.0, W=0.0001, Qc=0.022, alpha=5.54)
+AT(0, 0, 0.300) RELATIVE arm2 ROTATED (0,0,0) RELATIVE arm2
+
+/* m=0 sets reflectivity to zero, so this serves as a double aperture for exit tube */
+
+/* ------------------- Optical Rail pre-sample ------------------------------ */
+
+COMPONENT Mon3_ToF = TOF_monitor2( xmin = -0.05, xmax = 0.05, ymin = -0.15, ymax = 0.15,
+               tmin =t_mon3_min, tmax =t_mon3_max, nchan=nos_mon3, filename = "Mon3_ToF.dat")
+AT (0, 0, (LMS - LM3S)) RELATIVE arm2 ROTATED (0,0,0) RELATIVE arm2
+
+COMPONENT Mon3_total = Monitor(
+    xmin = -0.03, xmax = 0.03, ymin = -0.1, ymax = 0.1)
+  AT (0, 0, LMS-LM3S+0.001) RELATIVE arm2
+  ROTATED (0, 0, 0) RELATIVE arm2
+
+COMPONENT Aperture1 = Slit(
+    width = 0.02, height = 0.06)
+WHEN ( if_A1 > 0.9 && if_A1 < 1.1 )  AT (0, 0, LMS - 0.6) RELATIVE arm2
+  ROTATED (0, 0, 0) RELATIVE arm2
+
+COMPONENT Soeller40 = Collimator_linear(
+    xwidth = 0.04, yheight = 0.08, len = 0.2, divergence = 40.0)
+WHEN ( Soeller > 39.9 && Soeller < 40.1 )  AT (0, 0, LMS - 0.5) RELATIVE arm2
+  ROTATED (0, 0, 0) RELATIVE arm2
+
+COMPONENT Soeller20 = Collimator_linear(
+    xwidth = 0.04, yheight = 0.08, len = 0.2, divergence = 20.0)
+WHEN ( Soeller > 19.9 && Soeller < 20.1 )  AT (0, 0, LMS - 0.5) RELATIVE arm2
+  ROTATED (0, 0, 0) RELATIVE arm2
+
+COMPONENT Aperture2 = Slit(
+    width = 0.017, height = 0.04)
+WHEN ( if_A2 > 0.9 && if_A2 < 1.1 )    AT (0, 0, LMS - 0.2) RELATIVE arm2
+  ROTATED (0, 0, 0) RELATIVE arm2
+
+/* -------------- At Sample position, actual sample ------------------- */
+
+
+COMPONENT sample_10x10 = Monitor(
+    xmin = -0.05, xmax = 0.05, ymin = -0.05, ymax = 0.05)
+  AT (0, 0, (LMS - 0.02)) RELATIVE arm2
+  ROTATED (0, 0, 0) RELATIVE arm2
+
+
+COMPONENT sample_1x1 = Monitor(
+    xmin = -0.005, xmax = 0.005, ymin = -0.005, ymax = 0.005)
+  AT (0, 0, (LMS -0.02 + 0.0001)) RELATIVE arm2
+  ROTATED (0, 0, 0) RELATIVE arm2
+
+COMPONENT arm3 = Arm() AT (0, 0, LMS) RELATIVE arm2 ROTATED (0, 0, 0) RELATIVE arm2
+
+COMPONENT sample_Vanadium = V_sample_mark(
+    radius_i = 0.0000, radius_o = 0.003175, h = 0.08, focus_r = 0.0, focus_aw = 60.0, focus_ah = 15.0, 
+    target_x = 0, target_y = 0, target_z = 0.70, target_index = 0)
+WHEN( V_Sample > 0.9 && V_Sample < 1.1 )  AT (0, 0, 0) RELATIVE arm3 ROTATED (0,S2_ang,0) RELATIVE arm3
+
+COMPONENT KTA_Sample = Single_crystal(
+    reflections = "KTA_reflections_simple.dat",
+    xwidth = 0.005, yheight = 0.02, zthick = 0.005, 
+    delta_d_d = 1.0e-1, mosaic = 60, order = 1, recip_cell = 0,
+    ax = a_KTA_angstrom, ay = 0.0, az = 0.0, 
+    bx = 0.0, by = a_KTA_angstrom, bz = 0.0,
+    cx = 0.0, cy = 0.0, cz = a_KTA_angstrom, 
+    p_transmit = 0.0)
+    WHEN( KTA_Sample > 0.9 && KTA_Sample < 1.1 )
+    AT (0, 0, 0) RELATIVE arm3 ROTATED (0, S1_ang_KTA_deg , 0) RELATIVE arm3
+
+//COMPONENT Fine_radial_collimator = Collimator_radial(
+//     yheight = 0.25, length = 0.185, theta_min = -30,
+//     theta_max = 30, nchan = 98, radius = 0.555)
+//   AT (0, 0, 0) RELATIVE arm3
+//   ROTATED (0, S2_ang, 0) RELATIVE arm3
+
+COMPONENT Fine_radial_collimator = Exact_radial_coll(
+    theta_mini = -32.5, theta_maxi = 32.5, channels = 98,
+    in_radius = 0.555, length = 0.185, h_in = 0.25, h_out = 0.25)
+  AT (0, 0, 0) RELATIVE arm3
+  ROTATED (0, S2_ang, 0) RELATIVE arm3
+
+COMPONENT detector_vessel = hyspec_detector_vessel2(tof_chan_lower=phaseff_min,
+    tof_chan_upper=phaseff_max, nos_tof_chan=nos_det) 
+AT (0, 0, 0) RELATIVE arm3 ROTATED (0,S2_ang,0) RELATIVE arm3
+
+
+END
+
+
+

@@ -1,0 +1,396 @@
+/*******************************************************************************
+*
+* McStas, neutron ray-tracing package
+*         Copyright 1997-2002, All rights reserved
+*         Risoe National Laboratory, Roskilde, Denmark
+*         Institut Laue Langevin, Grenoble, France
+*
+* Component: hyspec_detector_vessel
+*
+* %I
+* Written by: Mark Hagen
+* Date: June 2006
+* Version: $Revision: 0.1 $
+* Origin: SNS
+* Release: 
+*
+* A model of the HYSPEC detector vessel
+*
+* %D
+* The HYSPEC spectrometer at SNS has a detector vessel that contains Ar gas. It has a front window with
+* cylindrical geometry, followed by a coarse radial collimator and then 160 LPSD tubes on a cylindrical
+* geometry at the back of the detector vessel. 
+*
+* Example: hyspec_detector_vessel()
+*
+* %P
+* INPUT PARAMETERS:
+*
+* front_radius      :    (m)     The radius (from sample) corresponding to the detector front window.
+* front_height      :    (m)     The height of the detector front window.
+* front_extent      :    (degs)  The horizontal angular extent of the detector front window.
+* coll_radius       :    (m)     The radial distance at which the coarse collimator starts.
+* coll_length       :    (m)     The length of the collimator blades in the coarse collimator.
+* nos_coll          :    (n)     The number of gaps through the collimator.
+* radius_tubes      :    (m)     The radius (from the sample) on which the detector tubes sit.
+* height_tubes      :    (m)     Height of the active area of the LPSD tubes.
+* nos_tubes         :    (n)     The number of LPSD tubes.
+* tubes_extent      :    (degs)  The horizontal angular extent covered by the LPSD tubes.
+* nos_pixels        :    (n)     The number of pixels along the length of the LPSD tube.
+* output_mode       :    (n)     The ToF output mode, =1 is histogram, =2 is event mode.
+* tof_chan_lower    :    (s)     The lower boundary of the ToF histogram.
+* tof_chan_upper    :    (s)     The upper boundary of the ToF histogram.
+* nos_tof_chan      :    (n)     The number of time channels in the ToF histogram.
+*
+* %E
+*******************************************************************************/
+
+
+DEFINE COMPONENT hyspec_detector_vessel2
+DEFINITION PARAMETERS (max_event=500000, output_mode=2, 
+                       nos_tubes=172,     /* nominal 160, but period of tubes over 60 deg leads to 172 */
+                       nos_pixels=120,    /* Hagen 80, nominal 128, but top and bottom 4 don't read out */ 
+                       nos_tof_chan=1000, 
+                       filename="HYSPEC_detector.dat")
+SETTING PARAMETERS (front_radius=0.793,   /* Hagen 0.7, new from SING14B-70-M8U-8714-A037 */
+                    front_height=0.406,   /* Hagen 0.2, new from SING14B-70-M8U-8714-A037 */
+                    front_extent=60.0, 
+                    coll_radius=0.838,    /* Hagen 0.7001, new from SING14B-20-M8U-8714-A171 */
+                    coll_length=0.203,    /* Hagen 1.0, new from SING14B-20-M8U-8714-A171 */ 
+                    nos_coll=20,
+                    radius_tubes=4.50, 
+                    height_tubes=1.125,   /* nominal 1.2, but some pixels don't read out */
+                    tubes_extent=60.0,
+                    tof_chan_lower=0.026, tof_chan_upper=0.027)
+OUTPUT PARAMETERS (event_N, maxkey, nos_event, ievent, out_of_range, event_flag,
+                   ymin_front, ymax_front, ang_front_lower, ang_front_upper, 
+                   ymin_back, ymax_back, ang_back_lower, ang_back_upper, coll_back, coll_height,
+                   ymin_tubes, ymax_tubes, ang_tubes_lower, ang_tubes_upper, front_range, 
+                   tubes_range, size_tof_chan)
+STATE PARAMETERS (x,y,z,vx,vy,vz,t,s1,s2,p)
+
+DECLARE
+%{
+  double event_N[5][max_event+1] ;
+  long int maxkey, nos_event, ievent, out_of_range, event_flag ;
+
+  double ymin_front, ymax_front, ang_front_lower, ang_front_upper ;
+  double ymin_back, ymax_back, ang_back_lower, ang_back_upper ;
+  double coll_back, coll_height ;
+  double ymin_tubes, ymax_tubes, ang_tubes_lower, ang_tubes_upper ;
+  double front_range, tubes_range, size_tof_chan ;
+  double p_total, p2_total ;
+
+%}
+INITIALIZE
+%{
+  int jj ;
+
+  ymin_front = -front_height / 2. ;
+  ymax_front =  front_height / 2. ;
+  ang_front_upper  =  front_extent * DEG2RAD / 2. ;
+  ang_front_lower  = -1. * ang_front_upper ;
+
+  coll_back = coll_radius + coll_length ;
+  coll_height = front_height + coll_length * (height_tubes - front_height) / (radius_tubes - front_radius) ;
+
+  ymin_back = -coll_height / 2. ;
+  ymax_back =  coll_height / 2. ;
+  front_range = front_extent * DEG2RAD ;
+  ang_back_upper  =  front_range / 2. ;
+  ang_back_lower  = -1. * ang_front_upper ;
+
+  ymin_tubes = -height_tubes / 2. ;
+  ymax_tubes =  height_tubes / 2. ;
+  tubes_range = tubes_extent * DEG2RAD ;
+  ang_tubes_upper  =  tubes_range / 2. ;
+  ang_tubes_lower  = -1. * ang_tubes_upper ;
+
+  size_tof_chan = tof_chan_upper - tof_chan_lower ;
+   
+  maxkey = nos_tof_chan * nos_pixels * nos_tubes ;
+  nos_event = 0 ;
+  event_flag = 0 ;
+  out_of_range = 0 ;
+  p_total = 0.0 ;
+  p2_total = 0.0 ;
+  for (ievent = 0 ; ievent < max_event ; ievent++)
+    {
+     event_N[0][ievent] = maxkey + 1 ;
+     for (jj = 1 ; jj < 5 ; jj++)
+       {
+        event_N[jj][ievent] = 0 ;
+       }
+    }
+  
+%}
+TRACE
+%{
+    double ang_inner, t0, t1 ;
+    long int bank_id, tube_id, pix_id, bin_id ;
+    long int i_gap, j_gap ;
+
+/***** First check if the neutron will enter the front window of the detector vessel *****/
+
+   if(cylinder_intersect(&t0, &t1, x, y, z, vx, vy, vz, front_radius, front_height) && t1 > 0)
+     {
+      PROP_DT(t1) ;
+      ang_inner = atan2(x,z) ;
+      if(ang_inner >= ang_front_lower && ang_inner <= ang_front_upper &&
+         y >= ymin_front && y <= ymax_front && fabs(sqrt(x*x + z*z) - front_radius) <= 0.001)
+        {
+         /**** Now to check if ibarry/Oct2011/meV19t passes through the coarse collimator ****/
+         i_gap = 1 + floor(nos_coll * (ang_inner - ang_front_lower) /front_range) ;
+         if(cylinder_intersect(&t0, &t1, x, y, z, vx, vy, vz, coll_back, coll_height) && t1 > 0)
+           {
+            PROP_DT(t1) ;
+            ang_inner = atan2(x,z) ;
+            if(ang_inner >= ang_back_lower && ang_inner <= ang_back_upper &&
+               y >= ymin_back && y <= ymax_back && fabs(sqrt(x*x + z*z) - coll_back) <= 0.001)
+              {
+               j_gap = 1 + floor(nos_coll * (ang_inner - ang_front_lower) /front_range) ;
+               if(i_gap == j_gap)
+                 {
+                  /**** Now to check if it hits the detector bank ****/
+                  if(cylinder_intersect(&t0, &t1, x, y, z, vx, vy, vz, radius_tubes, height_tubes) && t1 > 0)
+                    {
+                     PROP_DT(t1) ;
+                     ang_inner = atan2(x,z) ;
+                     if(ang_inner >= ang_tubes_lower && ang_inner <= ang_tubes_upper &&
+                        y >= ymin_tubes && y <= ymax_tubes && fabs(sqrt(x*x + z*z) - radius_tubes) <= 0.001)
+                       {
+                        if( t <= tof_chan_upper && t >= tof_chan_lower )
+                          {
+                           /* Now to find the particular tube/pixel/histogram bin */
+                           tube_id = 1 +  floor( nos_tubes * (ang_inner - ang_tubes_lower)/ tubes_range) ;
+                           if(tube_id < 1 ) tube_id = 1 ;
+                           if(tube_id > nos_tubes) tube_id = nos_tubes ;
+                           pix_id = 1 + floor( nos_pixels * (y - ymin_tubes) / height_tubes ) ;
+                           if(pix_id < 1) pix_id = 1 ;
+                           if(pix_id > nos_pixels) pix_id = nos_pixels ;
+                           bin_id = 1 + floor( nos_tof_chan * (t - tof_chan_lower) / size_tof_chan ) ;
+                           if(bin_id < 1) bin_id = 1 ;
+                           if(bin_id > nos_tof_chan) bin_id = nos_tof_chan ;
+                           if((nos_event+1) <= max_event)
+                             {
+                              nos_event = nos_event + 1 ;
+                              event_N[0][nos_event] = bin_id + (pix_id - 1) * nos_tof_chan 
+                                                          + (tube_id - 1) * nos_tof_chan * nos_pixels ;
+                              event_N[1][nos_event] = p ;
+                              event_N[2][nos_event] = bin_id ;
+                              event_N[3][nos_event] = pix_id ;
+                              event_N[4][nos_event] = tube_id ;
+                              p_total = p_total + p ;
+                              p2_total = p2_total + p * p ;
+                             }
+                           else
+                             {
+                              if(event_flag == 0)
+                                {
+                                 printf("MAXIMUM NUMBER OF EVENTS EXCEEDED: EXTRA EVENTS NOT RECORDED\n") ;
+                                }
+                              event_flag += 1 ;
+                             }                        
+                          }
+                        else
+                          {
+                           out_of_range += 1 ;
+                          }
+                       }
+                     else
+                       {
+                        ABSORB ;
+                       } /* End of ang_tubes */
+                    }
+                  else
+                    {
+                     ABSORB ;
+                    } /* End of cylinder_intersect LPSD tubes */
+                 }
+               else
+                 {
+                  ABSORB ;
+                 } /* End of i_gap == j_gap for coarse collimator */
+              }
+            else
+              {
+               ABSORB ;
+              } /* End of back of coarse collimator */
+           }
+         else
+           {
+            ABSORB ;
+           } /* End of cylinder_intersect coarse collimator */
+        }
+      else
+        {
+         ABSORB ; 
+        } /* End of ymin_front <= y <= ymax_front */
+     }
+    else
+     {
+      ABSORB ; 
+     } /* End of cylinder_intersect front window */
+
+%}
+
+SAVE
+%{
+  DETECTOR_OUT_0D("HYSPEC detector vessel integrated", nos_event, p_total, p2_total) ;
+%}
+
+FINALLY
+%{
+
+/******* Before we output the results we must order them *******/
+
+  long int nn, indx[max_event+1], i, indxt, ir, itemp, j, k, l=1 ;
+  static int M=7, NSTACK=50 ; 
+  int jstack=0, istack[50] ; /** this is istack[NSTACK], change values together **/
+  double a, arr[max_event+1] ;
+  int itof, ipix, itub ;
+
+        nn = nos_event ;
+	ir = nn ;
+	for (j=1;j<=nn;j++) 
+          {
+           indx[j] = j ;
+           arr[j] = event_N[0][j] ;
+          }
+	for (;;) {
+		if (ir-l < M) {
+			for (j=l+1;j<=ir;j++) {
+				indxt=indx[j];
+				a=arr[indxt];
+				for (i=j-1;i>=l;i--) {
+					if (arr[indx[i]] <= a) break;
+					indx[i+1]=indx[i];
+				}
+				indx[i+1]=indxt;
+			}
+			if (jstack == 0) break;
+			ir=istack[jstack--];
+			l=istack[jstack--];
+		} else {
+			k=(l+ir) >> 1;
+                        itemp = indx[k] ;
+                        indx[k] = indx[l+1] ;
+                        indx[l+1] = itemp ;
+			if (arr[indx[l]] > arr[indx[ir]]) {
+                                itemp = indx[l] ;
+                                indx[l] = indx[ir] ;
+                                indx[ir] = itemp ;
+			}
+			if (arr[indx[l+1]] > arr[indx[ir]]) {
+                                itemp = indx[l+1] ;
+                                indx[l+1] = indx[ir] ;
+                                indx[ir] = itemp ;
+			}
+			if (arr[indx[l]] > arr[indx[l+1]]) {
+                                itemp = indx[l] ;
+                                indx[l] = indx[l+1] ;
+                                indx[l+1] = itemp ;
+			}
+			i=l+1;
+			j=ir;
+			indxt=indx[l+1];
+			a=arr[indxt];
+			for (;;) {
+				do i++; while (arr[indx[i]] < a);
+				do j--; while (arr[indx[j]] > a);
+				if (j < i) break;
+                                itemp = indx[i] ;
+                                indx[i] = indx[j] ;
+                                indx[j] = itemp ;
+			}
+			indx[l+1]=indx[j];
+			indx[j]=indxt;
+			jstack += 2;
+			if(jstack > NSTACK) 
+                          {
+                           printf("NSTACK too small in index calculation.") ;
+                          }
+			if (ir-i+1 >= j-l) {
+				istack[jstack]=ir;
+				istack[jstack-1]=i;
+				ir=j-1;
+			} else {
+				istack[jstack]=j-1;
+				istack[jstack-1]=l;
+				l=i;
+			}
+		}
+	}
+
+
+/******* Now to output the contents of the detector banks *******/
+
+  if(output_mode == 2)
+    {
+     FILE *hyspec ;
+     hyspec = fopen(filename,"w") ;
+     /**** First output a header block ****/
+     fprintf(hyspec,"# Format: McStas ordered event mode in ASCII\n") ;
+     fprintf(hyspec,"# URL: http://neutron.risoe.dk/\n") ;
+     fprintf(hyspec,"# Editor: (null) on (null)\n") ;
+     fprintf(hyspec,"# Creator: \n") ;
+     fprintf(hyspec,"# Date: \n") ;
+     fprintf(hyspec,"# File: %s\n",filename) ;
+     fprintf(hyspec,"# type: array_2d(5, %d) \n", nos_event) ;
+     fprintf(hyspec,"# Source: \n") ;
+     fprintf(hyspec,"# Component: %s \n",NAME_CURRENT_COMP) ;
+     fprintf(hyspec,"# title: HYSPEC detector bank\n") ;
+     fprintf(hyspec,"# ratio: \n") ;
+     fprintf(hyspec,"# filename: %s\n",filename) ;
+     fprintf(hyspec,"# xvar: ToF \n") ;
+     fprintf(hyspec,"# yvar: Pix_id \n") ;
+     fprintf(hyspec,"# zvar: Tube_id \n") ;
+     fprintf(hyspec,"# xlabel: Time of Flight (us) \n") ;
+     fprintf(hyspec,"# ylabel: Pixel ID \n") ;
+     fprintf(hyspec,"# zlabel: LPSD Tube ID \n") ;
+     fprintf(hyspec,"# Time channels: %d channels from %.0f us to %.0f us \n",
+                     nos_tof_chan, (1e6*tof_chan_lower), (1e6*tof_chan_upper)) ;
+     fprintf(hyspec,"# LPSD pixels: %d pixels per LPSD tube \n", nos_pixels) ;
+     fprintf(hyspec,"# Number of LPSD tubes: %d \n", nos_tubes) ;
+     fprintf(hyspec,
+     "# Definition: KEY = BIN_ID + ((PIX_ID - 1) + (TUBE_ID -1 ) * nos_pixels) * nos_tof_chan \n") ;
+     fprintf(hyspec,"# Definition: WEIGHT = the weight of the neutron event (p in McStas)\n") ;
+     fprintf(hyspec,"# Definition: BIN_ID = time of flight bin/channel from 1 to %d\n", nos_tof_chan) ;
+     fprintf(hyspec,"# Definition: PIX_ID = pixel number along an LPSD tube from 1 to %d\n", nos_pixels) ;
+     fprintf(hyspec,"# Definition: TUBE_ID = the number of the LPSD tube from 1 to %d\n", nos_tubes) ;
+     fprintf(hyspec,"# Input: max_event= %d, output_mode= %d, filename= %s\n", max_event, output_mode, filename) ;
+     fprintf(hyspec,"# Input: nos_tof_chan = %d, tof_chan_lower= %.6f, tof_chan_upper= %.6f\n",
+                              nos_tof_chan, tof_chan_lower, tof_chan_upper) ;
+     fprintf(hyspec,"# Input: front_radius= %.3f, front_height= %.3f, front_extent= %.3f\n", front_radius,
+                    front_height, front_extent) ;
+     fprintf(hyspec,"# Input: nos_tubes= %d, nos_pixels= %d\n", nos_tubes, nos_pixels) ;
+     fprintf(hyspec,"# Input: coll_radius= %.3f, coll_length= %.3f, nos_coll= %.0f\n", coll_radius, coll_length, nos_coll) ;
+     fprintf(hyspec,"# Input: radius_tubes= %.3f, height_tubes= %.3f, tubes_extent=%.2f\n", radius_tubes, height_tubes, tubes_extent) ;
+     if(event_flag == 0)
+       {
+        fprintf(hyspec,"# Events: nos_events = %d\n", nos_event) ;
+       }
+     else
+       {
+        fprintf(hyspec,"# Events: nos_events = %d, max_events= %d was exceeded by %d unrecorded events in this run\n",
+                                  nos_event, max_event, event_flag) ; 
+       }
+     fprintf(hyspec,"#      KEY      WEIGHT   BIN_ID PIX_ID TUBE_ID\n") ;
+     for (ievent = 1 ; ievent <= nos_event ; ievent++)
+       {
+        j = indx[ievent] ;
+        fprintf(hyspec, "%10.0f %11.7e %8.0f %6.0f %7.0f\n", event_N[0][j], event_N[1][j], 
+                                              event_N[2][j], event_N[3][j], event_N[4][j] ) ;
+       }
+     fclose(hyspec) ;
+    }
+
+%}
+
+MCDISPLAY
+%{
+%}
+
+END
+
+
