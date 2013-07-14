@@ -61,86 +61,29 @@ DEFINITION PARAMETERS (dist, rad, nu, ymin, ymax, w, Nslit, alpham, Qc, m, Wi, R
 SETTING PARAMETERS ()
 OUTPUT PARAMETERS(cylinder, cylinder2, Treffer, interactiol, interactior, reflect, seccountl, seccountr, intpolcountl, intpolcountr, errcountl, errcountr, infinite, breakedl, breakedr, nout, topbot, nn, ntrans) 
 STATE PARAMETERS (x, y, z, vx, vy, vz, t, s1, s2, p)
-DECLARE
+
+SHARE
 %{
-           
+// ----------  header for SHARE ----------
+#ifndef FERMICHOPPER_MARK_SHARE
+#define FERMICHOPPER_MARK_SHARE
 
-/**************************COUNTER VARIABLES***********************************/
-
-  int cylinder;           	/* neutrons interacting with the cylinder  */
-  int cylinder2;          	/* neutrons interacting with the cylinder and entering the megaslit */
-
-  int Treffer; 	       	/* neutrons hitting the slits */
-  int n1[200];	  	/* how many neutrons entering each slit */
-  int n_2[200];	  	/* how many neutrons leaving each slit */
-
-  int *interactio;
-  int interactiol,interactior; 	/* interactions with left/right blades */
-
-  int reflect;	       		/* reflections (overall) */
-
-  int *nnref[3];
-  int nnrefl[3], nnrefr[3];     	/* reflections: left blade, right blade  */
-
-  int *nnabs[3];
-  int nnabsl[3], nnabsr[3];     	/* absorptions: left blade, right blade   */
-
-  int *seccount, *intpolcount, *errcount;
-  int seccountl,seccountr;	 		/* Secant method used */
-  int intpolcountl,intpolcountr; 		/* IntPol method used */
-  int errcountl, errcountr; 		/* errors by numerical methode	 */
-
-  int loops[3];		/* how often happen how many reflections */
-  int infinite;		/* infinite loops breaked up */
-
-  int *breaked;
-  int breakedl,breakedr;  /* neutrons leaving because they're hitting the wall outside the packet */
-  int nout;	       	/* neutrons absorbed, because of hitting the wall between slits and exit */
-  int topbot;		/* leaving the chopper from his top or bottom		 */
- 
-  int nn;                 /* total transmitted neutrons */
-  int ntrans;             /* transmitted neutrons, not reflected */
-
-
-
-/********************CALCULATION VARIABLES**************************************/ 
-
-/*****************Interaction with slitpacket***************************/
-  double slitl; 	/* length of the slits */
-  double f1,f2;		/* distance to slitpacket entrance/exit */
-
-/*********Variables for calculating interaction with blades*******************/
-  double m1,m2;		/* slope of the tangents */
-  double b1,b2;		/* y-intersection of tangent */
-  		       
-/*************Reflections***********************************************/
-  double tref, W;		
-  int	 n,n2,n3,n4;
-
-/******variables used for calculating new velocities after reflection*****/
-  double q;
-  double vper, vpar;
-  double arg;
-
-/**********Multiple Reflections************************************************/
-  int loopcounter; 	/* How many reflections happen? */
-  int reflcounter; 	/* loopcounter mod 3 */
-
-/******************************Time variables**********************************/
-  double t3;		/* interaction time */
-  double dt,dt1;	/* interaction interval */
-  double t1,t2; 	/* cylinderintersect */
-
-/**************************** Variables for finally section*********************/
-  int grenze;
-
-/***************************** other variables ********************************/
-  double omega, t0;	/* chopper rotation */
-
+extern double omega, t0;	/* chopper rotation */
 
 /*****************DECLARING FUNCTIONS******************************************/
 
-/************ORTHOGONAL TRANSFORMATION INTO ROTATING FRAME***********************/
+double xstrich(double X, double Z, double T);
+double zstrich(double X, double Z, double T);
+double xsecant(double x, double z, double vx, double vz, double t, double dt, double d);
+double zsecant(double x, double z, double vx, double vz, double t, double dt, double d);
+double xinterpolation(double x, double z, double vx, double vz, double t, double dt, double d);
+double zinterpolation(double x, double z, double vx, double vz, double t, double dt, double d);
+/***************************** other variables ********************************/
+#endif
+
+// ----------  implementation for SHARE ----------
+
+double omega, t0;	/* chopper rotation */
 
 /************X - component********************/
 double xstrich(double X, double Z, double T){
@@ -296,6 +239,83 @@ double zinterpolation(double x, double z, double vx, double vz, double t, double
 
 	return(t3);
 	}
+%}
+
+
+DECLARE
+%{
+           
+
+/**************************COUNTER VARIABLES***********************************/
+
+  int cylinder;           	/* neutrons interacting with the cylinder  */
+  int cylinder2;          	/* neutrons interacting with the cylinder and entering the megaslit */
+
+  int Treffer; 	       	/* neutrons hitting the slits */
+  int n1[200];	  	/* how many neutrons entering each slit */
+  int n_2[200];	  	/* how many neutrons leaving each slit */
+
+  int *interactio;
+  int interactiol,interactior; 	/* interactions with left/right blades */
+
+  int reflect;	       		/* reflections (overall) */
+
+  int *nnref[3];
+  int nnrefl[3], nnrefr[3];     	/* reflections: left blade, right blade  */
+
+  int *nnabs[3];
+  int nnabsl[3], nnabsr[3];     	/* absorptions: left blade, right blade   */
+
+  int *seccount, *intpolcount, *errcount;
+  int seccountl,seccountr;	 		/* Secant method used */
+  int intpolcountl,intpolcountr; 		/* IntPol method used */
+  int errcountl, errcountr; 		/* errors by numerical methode	 */
+
+  int loops[3];		/* how often happen how many reflections */
+  int infinite;		/* infinite loops breaked up */
+
+  int *breaked;
+  int breakedl,breakedr;  /* neutrons leaving because they're hitting the wall outside the packet */
+  int nout;	       	/* neutrons absorbed, because of hitting the wall between slits and exit */
+  int topbot;		/* leaving the chopper from his top or bottom		 */
+ 
+  int nn;                 /* total transmitted neutrons */
+  int ntrans;             /* transmitted neutrons, not reflected */
+
+
+
+/********************CALCULATION VARIABLES**************************************/ 
+
+/*****************Interaction with slitpacket***************************/
+  double slitl; 	/* length of the slits */
+  double f1,f2;		/* distance to slitpacket entrance/exit */
+
+/*********Variables for calculating interaction with blades*******************/
+  double m1,m2;		/* slope of the tangents */
+  double b1,b2;		/* y-intersection of tangent */
+  		       
+/*************Reflections***********************************************/
+  double tref, W;		
+  int	 n,n2,n3,n4;
+
+/******variables used for calculating new velocities after reflection*****/
+  double q;
+  double vper, vpar;
+  double arg;
+
+/**********Multiple Reflections************************************************/
+  int loopcounter; 	/* How many reflections happen? */
+  int reflcounter; 	/* loopcounter mod 3 */
+
+/******************************Time variables**********************************/
+  double t3;		/* interaction time */
+  double dt,dt1;	/* interaction interval */
+  double t1,t2; 	/* cylinderintersect */
+
+/**************************** Variables for finally section*********************/
+  int grenze;
+
+
 %}
 
 INITIALIZE
@@ -627,8 +647,8 @@ TRACE
 				vper *= (-1);	 /* Mirroring perpendicular velocity */
 
 				/**************SET NEW VELOCITIES***********/
-				mcnlvx = vper*cos(omega*(t-t0)) -  vpar*sin(omega*(t-t0));
-		        	mcnlvz = vper*sin(omega*(t-t0)) +  vpar*cos(omega*(t-t0));
+				vx = vper*cos(omega*(t-t0)) -  vpar*sin(omega*(t-t0));
+		        	vz = vper*sin(omega*(t-t0)) +  vpar*cos(omega*(t-t0));
 
 				SCATTER;
 				}
