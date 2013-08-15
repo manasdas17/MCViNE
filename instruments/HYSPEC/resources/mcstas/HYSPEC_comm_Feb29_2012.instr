@@ -541,6 +541,7 @@ COMPONENT sample_Vanadium = V_sample_mark(
     target_x = 0, target_y = 0, target_z = 0.70, target_index = 0)
 WHEN( V_Sample > 0.9 && V_Sample < 1.1 )  AT (0, 0, 0) RELATIVE arm3 ROTATED (0,S2_ang,0) RELATIVE arm3
 
+/*
 COMPONENT KTA_Sample = Single_crystal(
     reflections = "KTA_reflections_simple.dat",
     xwidth = 0.005, yheight = 0.02, zthick = 0.005, 
@@ -551,6 +552,7 @@ COMPONENT KTA_Sample = Single_crystal(
     p_transmit = 0.0)
     WHEN( KTA_Sample > 0.9 && KTA_Sample < 1.1 )
     AT (0, 0, 0) RELATIVE arm3 ROTATED (0, S1_ang_KTA_deg , 0) RELATIVE arm3
+*/
 
 //COMPONENT Fine_radial_collimator = Collimator_radial(
 //     yheight = 0.25, length = 0.185, theta_min = -30,
