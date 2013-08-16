@@ -246,6 +246,7 @@ INITIALIZE
    /* Flight times at monitor 0 */
     t_mon0_min = POS_G1A /(sqrt(E_max)*SE2V) - 0.0020 + toffset_s ;    
     t_mon0_max = POS_G1A /(sqrt(E_min)*SE2V) + 0.0020 + toffset_s ;    
+   /* here we have a bug */
    nos_mon0 = 100000. * (t_mon1_max - t_mon1_min) ;
 
    /* Flight times at monitor 1 */
