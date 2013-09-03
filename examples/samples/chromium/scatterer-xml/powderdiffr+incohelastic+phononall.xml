@@ -27,7 +27,7 @@
       </Phonon_IncoherentElastic_Kernel>
 
       <Phonon_IncoherentInelastic_Kernel>
-	<LinearlyInterpolatedDOS idf-data-path="Cr-phonons/dos.dat">
+	<LinearlyInterpolatedDOS idf-data-path="Cr-phonons/DOS">
 	</LinearlyInterpolatedDOS>
       </Phonon_IncoherentInelastic_Kernel>
 
