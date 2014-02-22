@@ -1,0 +1,57 @@
+How the template file was created
+=================================
+
+The file was created from HYS_22891_event.nxs.
+
+Removed:
+* SNSHitoTool
+* bank??_events/event_id(index, time_offset, time_zero)
+* instrument/bank??/event_id(index, time_offset, time_zero)
+* all children of DASlogs except "proton_charge"
+* monitor2_events, monitor3_events
+
+
+Modifying template to create simulated HYSPEC event nexus file
+==============================================================
+
+To create a HYSPEC events file we need to copy the template file
+to a new file, and do the following updates:
+
+* bank*_events: add fields 
+  * event_id: pixel ID for the events
+  * event_time_offset: tof offset for the events
+  * event_weight: weights of neutron events
+  * event_index: should be an array of size 2. first element 0, second element # of events.
+  * event_time_zero: neutron pulse time. should be an array of size 2. first element 0, second element 0.016666666
+
+* bank*_events: 
+  * total_counts
+
+* bank*: 
+  * data_x_y: histogram[x,y]. shape=8,128
+
+* total_counts
+
+
+
+To think about soon
+-------------------
+
+* proton_charge
+* monitors: monitor2, monitor3
+* sample
+* DASlogs
+
+
+
+Not critical
+------------
+* time signatures: start_time, end_time, duration
+* definition
+* notes
+* title
+* collection_identifier, collectioin_titile
+* entry_identifier, experiment_identifier
+* raw_frames
+* run_number
+* users: user1/2/3
