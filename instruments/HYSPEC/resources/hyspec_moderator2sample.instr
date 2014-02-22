@@ -48,6 +48,7 @@ INITIALIZE
 
 from math import sqrt, pi as PI, asin
 from mcni.utils.conversion import SE2V
+import os
 
 # /* Former parameters, now fixed */
 
@@ -140,10 +141,15 @@ H1_G4 = HA - HB * POS_G4 ; H2_G4 = HA - HB * (POS_G4 + LEN_G4) ;
 
 LSD = 4.5 ;
 
+moddatadir = os.path.join(
+    os.environ['MCVINE_DIR'], 'share', 'mcvine',
+    'instruments', 'HYSPEC',
+    'mcstas',
+    )
 if Ortho30:
-    sourcename= "SNS_TD_30o70p_fit_fit.dat"
+    sourcename= os.path.join(moddatadir, "SNS_TD_30o70p_fit_fit.dat")
 else:
-    sourcename= "SNS_TD_0o100p_fit_fit.dat"
+    sourcename= os.path.join(moddatadir, "SNS_TD_0o100p_fit_fit.dat")
     pass
 # /* Determine whether an estimate of toffset is requested, then make the estimate */
 
@@ -153,6 +159,7 @@ else:
     toffset_s = toffset_us / 1000000.0 
     pass
 
+# not necessarily true
 if (Edes < 60.0) :
     freq_T0 = 30.0; 
 else:
